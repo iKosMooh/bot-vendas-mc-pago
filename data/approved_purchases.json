@@ -1,5 +1,5 @@
-[
-  {
+{
+  "purchase_1751923319384_4907sl223": {
     "id": "purchase_1751923319384_4907sl223",
     "paymentId": "742828492-9e560c8d-a264-43a9-ac46-7bfd0cb05f81",
     "userId": "402595451435614209",
@@ -18,12 +18,12 @@
     "approvedAtTimestamp": 1751923319384,
     "expiresAt": "2025-07-07T21:22:59.384Z",
     "expiresAtTimestamp": 1751923379384,
-    "delivered": true,
-    "deliveredAt": "2025-07-07T21:22:00.022Z",
+    "delivered": false,
+    "deliveredAt": null,
     "expired": false,
     "expiredAt": null,
     "removed": false,
     "removedAt": null,
     "status": "approved"
   }
-]
+}

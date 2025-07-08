@@ -1,78 +1,67 @@
-const Discord = require("discord.js");
+const { SlashCommandBuilder, EmbedBuilder, ButtonBuilder, ButtonStyle, ActionRowBuilder } = require('discord.js');
 
 module.exports = {
-  data: new Discord.SlashCommandBuilder()
-    .setName("createticket")
-    .setDescription("Cria um ticket de suporte")
-    .addStringOption(option => option
-      .setName("assunto")
-      .setDescription("Assunto do ticket")
-      .setRequired(true)
-    )
-    .addStringOption(option => option
-      .setName("descricao")
-      .setDescription("Descrição detalhada do problema")
-      .setRequired(true)
-    ),
+    data: new SlashCommandBuilder()
+        .setName('createticket')
+        .setDescription('Sistema de tickets - Escolha entre reportar problema ou fazer compra'),
 
-  async execute(interaction) {
-    const assunto = interaction.options.getString("assunto");
-    const descricao = interaction.options.getString("descricao");
-    
-    try {
-      // Cria canal do ticket
-      const ticketChannel = await interaction.guild.channels.create({
-        name: `ticket-${interaction.user.username}`,
-        type: Discord.ChannelType.GuildText,
-        permissionOverwrites: [
-          {
-            id: interaction.guild.id,
-            deny: [Discord.PermissionFlagsBits.ViewChannel],
-          },
-          {
-            id: interaction.user.id,
-            allow: [Discord.PermissionFlagsBits.ViewChannel, Discord.PermissionFlagsBits.SendMessages],
-          },
-          // Adicione permissões para staff aqui
-        ],
-      });
+    async execute(interaction) {
+        console.log(`🎫 Comando createticket executado por: ${interaction.user.tag}`);
+        
+        try {
+            const embed = new EmbedBuilder()
+                .setTitle('🎫 Sistema de Tickets')
+                .setDescription('Escolha o tipo de ticket que deseja criar:')
+                .addFields(
+                    {
+                        name: '🐛 Reportar Problema',
+                        value: 'Para reportar bugs, problemas técnicos ou solicitar suporte geral',
+                        inline: true
+                    },
+                    {
+                        name: '🛒 Fazer Compra',
+                        value: 'Para comprar produtos, ver catálogo ou esclarecer dúvidas sobre compras',
+                        inline: true
+                    },
+                    {
+                        name: 'ℹ️ Informação',
+                        value: 'Você só pode ter um ticket aberto por vez. Se já possui um ticket ativo, feche-o antes de criar outro.',
+                        inline: false
+                    }
+                )
+                .setColor('#0099ff')
+                .setFooter({ 
+                    text: 'Sistema de Tickets - Bot Vendas MC'
+                })
+                .setTimestamp();
 
-      const embed = new Discord.EmbedBuilder()
-        .setTitle("🎫 Ticket Criado")
-        .setColor("#00FF00")
-        .addFields(
-          { name: "Usuário", value: interaction.user.username, inline: true },
-          { name: "Assunto", value: assunto, inline: true },
-          { name: "Descrição", value: descricao, inline: false }
-        )
-        .setTimestamp();
+            const buttons = new ActionRowBuilder()
+                .addComponents(
+                    new ButtonBuilder()
+                        .setCustomId('create_ticket_report')
+                        .setLabel('🐛 Reportar Problema')
+                        .setStyle(ButtonStyle.Danger),
+                    new ButtonBuilder()
+                        .setCustomId('create_ticket_buy')
+                        .setLabel('🛒 Fazer Compra')
+                        .setStyle(ButtonStyle.Success)
+                );
 
-      const closeButton = new Discord.ActionRowBuilder()
-        .addComponents(
-          new Discord.ButtonBuilder()
-            .setCustomId("close_ticket")
-            .setLabel("Fechar Ticket")
-            .setStyle(Discord.ButtonStyle.Danger)
-            .setEmoji("🔒")
-        );
+            await interaction.reply({
+                embeds: [embed],
+                components: [buttons]
+            });
 
-      await ticketChannel.send({ 
-        content: `${interaction.user} - Seu ticket foi criado!`, 
-        embeds: [embed], 
-        components: [closeButton] 
-      });
+            console.log('✅ Menu de criação de tickets enviado');
 
-      return interaction.reply({ 
-        content: `✅ Ticket criado em ${ticketChannel}!`, 
-        ephemeral: true 
-      });
-
-    } catch (error) {
-      console.error("Erro ao criar ticket:", error);
-      return interaction.reply({ 
-        content: "❌ Erro ao criar ticket.", 
-        ephemeral: true 
-      });
+        } catch (error) {
+            console.error('❌ Erro ao executar createticket:', error);
+            
+            if (!interaction.replied && !interaction.deferred) {
+                await interaction.reply({
+                    content: '❌ Erro ao criar sistema de tickets. Tente novamente.'
+                });
+            }
+        }
     }
-  }
 };

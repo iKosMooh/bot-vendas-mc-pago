@@ -16,8 +16,16 @@ const commandsArray = [];
 const commandFiles = fs.readdirSync('./comandos').filter(file => file.endsWith('.js'));
 for (const file of commandFiles) {
     const command = require(`./comandos/${file}`);
-    client.commands.set(command.name, command);
-    if (command.data) commandsArray.push(command.data);
+    
+    // Se tem 'data', é um slash command
+    if (command.data) {
+        client.commands.set(command.data.name, command);
+        commandsArray.push(command.data);
+    } 
+    // Se tem 'name', é um comando de prefixo
+    else if (command.name) {
+        client.commands.set(command.name, command);
+    }
 }
 
 // Registrar comandos de barra (slash) na API do Discord
@@ -48,16 +56,28 @@ client.once('ready', async () => {
         console.error('Erro ao registrar comandos de barra:', error);
     }
     // Sincronizar canal RCON automaticamente se configurado
+    console.log('🔍 Verificando comando setrconchannel...');
     const rconCmd = client.commands.get('setrconchannel');
     if (rconCmd && typeof rconCmd.syncOnReady === 'function') {
+        console.log('🔍 Sincronizando canal RCON...');
         await rconCmd.syncOnReady(client);
+    } else {
+        console.log('ℹ️ Comando setrconchannel não encontrado ou sem função syncOnReady');
     }
     
     // Iniciar verificações automáticas de pagamentos e produtos
     try {
+        console.log('🔍 Carregando sistema de verificações automáticas...');
         const { startExpiryChecker } = require('./utils/productDelivery');
+        console.log('🔍 Iniciando verificador automático...');
         startExpiryChecker();
+        console.log('✅ Sistema de verificações automáticas configurado');
         console.log('✅ Verificações automáticas iniciadas');
+
+        // Iniciar verificador automático de pagamentos
+        const { startPaymentChecker } = require('./utils/mercadoPago');
+        startPaymentChecker();
+        console.log('✅ Verificador automático de pagamentos iniciado');
     } catch (error) {
         console.error('❌ Erro ao iniciar verificações automáticas:', error);
     }
@@ -93,7 +113,7 @@ client.on('interactionCreate', async interaction => {
     // Button Interactions
     if (interaction.isButton()) {
         try {
-            const { ticketHandler } = require('./utils/ticketHandler');
+            const ticketHandler = require('./utils/ticketHandler');
             await ticketHandler.handleButtonInteraction(interaction);
         } catch (error) {
             console.error('Erro ao processar botão:', error);
@@ -107,7 +127,7 @@ client.on('interactionCreate', async interaction => {
     // Select Menu Interactions
     if (interaction.isStringSelectMenu()) {
         try {
-            const { ticketHandler } = require('./utils/ticketHandler');
+            const ticketHandler = require('./utils/ticketHandler');
             await ticketHandler.handleSelectMenuInteraction(interaction);
         } catch (error) {
             console.error('Erro ao processar select menu:', error);

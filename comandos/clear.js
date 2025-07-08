@@ -13,8 +13,13 @@ module.exports = {
     ),
 
   async execute(interaction) {
+    // Verifica se o comando está sendo usado em um servidor
+    if (!interaction.guild) {
+      return interaction.reply({ content: "❌ Este comando só pode ser usado em servidores.", ephemeral: true });
+    }
+
     // Verifica se o usuário tem permissão (ManageMessages)
-    if (!interaction.member.permissions.has(Discord.PermissionFlagsBits.ManageMessages)) {
+    if (!interaction.member || !interaction.member.permissions.has(Discord.PermissionFlagsBits.ManageMessages)) {
       return interaction.reply({ content: "❌ Você não tem permissão para usar este comando.", ephemeral: true });
     }
 

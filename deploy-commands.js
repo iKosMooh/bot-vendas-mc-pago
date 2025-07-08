@@ -13,8 +13,11 @@ for (const file of commandFiles) {
     if ('data' in command && 'execute' in command) {
         // Se for um builder, converte para JSON
         commands.push(command.data.toJSON ? command.data.toJSON() : command.data);
+    } else if ('name' in command && 'description' in command && 'execute' in command) {
+        // Comando de prefixo (não é slash command) - ignora silenciosamente
+        continue;
     } else {
-        console.log(`[AVISO] O comando em ${filePath} está sem a propriedade "data" ou "execute".`);
+        console.log(`[AVISO] O comando em ${filePath} está sem as propriedades necessárias.`);
     }
 }
 

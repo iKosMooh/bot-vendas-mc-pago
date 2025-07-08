@@ -39,7 +39,7 @@ module.exports = {
   async run(client, interaction) {
     // Verifica se o usuário tem permissão (ManageGuild)
     if (!interaction.member.permissions.has(Discord.PermissionFlagsBits.ManageGuild)) {
-      return interaction.reply({ content: "❌ Você não tem permissão para usar este comando.", ephemeral: true });
+      return interaction.reply({ content: "❌ Você não tem permissão para usar este comando.", flags: 64 });
     }
 
     const nome = interaction.options.getString("nome");
@@ -51,7 +51,7 @@ module.exports = {
 
     // Verifica se o canal é de texto
     if (canal.type !== Discord.ChannelType.GuildText) {
-      return interaction.reply({ content: "❌ O canal deve ser um canal de texto.", ephemeral: true });
+      return interaction.reply({ content: "❌ O canal deve ser um canal de texto.", flags: 64 });
     }
 
     // Cria o embed do produto
@@ -100,12 +100,12 @@ module.exports = {
 
       return interaction.reply({ 
         content: `✅ Produto "${nome}" anunciado com sucesso no canal ${canal}!`, 
-        ephemeral: true 
+        flags: 64 
       });
 
     } catch (error) {
       console.error("Erro ao anunciar produto:", error);
-      return interaction.reply({ content: "❌ Erro ao anunciar o produto.", ephemeral: true });
+      return interaction.reply({ content: "❌ Erro ao anunciar o produto.", flags: 64 });
     }
   }
 };

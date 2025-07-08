@@ -34,7 +34,7 @@ module.exports = {
         if (!steamId) {
           return interaction.reply({
             content: '❌ Steam64ID inválido. Use 17 dígitos ou link do perfil.',
-            ephemeral: true
+            flags: 64
           });
         }
 

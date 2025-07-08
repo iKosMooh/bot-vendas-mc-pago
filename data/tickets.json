@@ -1,0 +1,15 @@
+[
+  {
+    "id": "ticket-1751923093331-ayubj",
+    "userId": "402595451435614209",
+    "username": "ikosmooh",
+    "channelId": "1391891122053185579",
+    "tipo": "compra",
+    "motivo": "Ticket criado via botão - compra",
+    "status": "open",
+    "criadoEm": "2025-07-07T21:18:13.784Z",
+    "fechadoEm": null,
+    "fechadoPor": null,
+    "selectedProductId": null
+  }
+]

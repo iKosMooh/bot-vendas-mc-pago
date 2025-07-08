@@ -1,0 +1,50 @@
+{
+  "name": "bot-vendas-mc-pago",
+  "version": "2.0.0",
+  "description": "Bot completo para Discord com sistema de vendas integrado ao Mercado Pago, sistema de tickets, integração RCON e muito mais!",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js",
+    "test": "node test.js",
+    "deploy": "node deploy-commands.js",
+    "clean": "node clean-commands.js"
+  },
+  "keywords": [
+    "discord",
+    "bot",
+    "mercado-pago",
+    "minecraft",
+    "rcon",
+    "vendas",
+    "tickets",
+    "pix",
+    "pagamentos"
+  ],
+  "author": "Bot Vendas MC",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^1.6.2",
+    "discord.js": "^14.14.1",
+    "fs": "^0.0.1-security",
+    "mercadopago": "^1.5.17",
+    "path": "^0.12.7",
+    "qrcode": "^1.5.3",
+    "rcon": "^1.0.3",
+    "rcon-client": "^4.2.5"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/seu-usuario/bot-vendas-mc-pago.git"
+  },
+  "bugs": {
+    "url": "https://github.com/seu-usuario/bot-vendas-mc-pago/issues"
+  },
+  "homepage": "https://github.com/seu-usuario/bot-vendas-mc-pago#readme"
+}

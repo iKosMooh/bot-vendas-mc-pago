@@ -1,0 +1,28 @@
+[
+  {
+    "id": "742828492-9e560c8d-a264-43a9-ac46-7bfd0cb05f81",
+    "preferenceId": "742828492-9e560c8d-a264-43a9-ac46-7bfd0cb05f81",
+    "externalReference": "discord_402595451435614209_1751923100467",
+    "userId": "402595451435614209",
+    "username": "ikosmooh",
+    "steamId": "76561199017489130",
+    "productId": "product_1751920600505",
+    "productName": "Teste",
+    "amount": 0.01,
+    "status": "approved",
+    "createdAt": "2025-07-07T21:18:21.190Z",
+    "expiresAt": "2025-07-07T21:48:20.467Z",
+    "pixUrl": "https://www.mercadopago.com.br/checkout/v1/redirect?pref_id=742828492-9e560c8d-a264-43a9-ac46-7bfd0cb05f81",
+    "qrCode": null,
+    "entregaAutomatica": true,
+    "comandoEntrega": "p add {steamid} nomade",
+    "comandoRemocao": "p remove {steamid} nomade",
+    "validadeTempo": 1,
+    "validadeUnidade": "minutes",
+    "productExpiresAt": null,
+    "productRemoved": false,
+    "statusDetail": "accredited",
+    "updatedAt": "2025-07-07T21:21:59.383Z",
+    "approvedAt": "2025-07-07T21:21:59.383Z"
+  }
+]

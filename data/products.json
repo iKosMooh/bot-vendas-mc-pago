@@ -1,0 +1,15 @@
+[
+  {
+    "id": "product_1751920600505",
+    "nome": "Teste",
+    "descricao": "test",
+    "preco": 0.01,
+    "comandoEntrega": "p add {steamid} nomade",
+    "entregaAutomatica": true,
+    "validadeTempo": 1,
+    "validadeUnidade": "minutes",
+    "comandoRemocao": "p remove {steamid} nomade",
+    "criadoEm": "2025-07-07T20:36:40.505Z",
+    "ativo": true
+  }
+]

@@ -1,0 +1,6 @@
+{
+    "logs": "ID_DO_CANAL_DE_LOGS",
+    "tickets": "ID_DO_CANAL_DE_TICKETS",
+    "shop": "ID_DO_CANAL_DA_LOJA",
+    "rcon": "ID_DO_CANAL_RCON"
+}

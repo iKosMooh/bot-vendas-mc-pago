@@ -15,7 +15,7 @@ module.exports = {
       .setRequired(true)
     ),
 
-  async run(client, interaction) {
+  async execute(interaction) {
     const assunto = interaction.options.getString("assunto");
     const descricao = interaction.options.getString("descricao");
     

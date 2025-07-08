@@ -6,7 +6,7 @@ module.exports = {
     .setName("mypayments")
     .setDescription("Mostra seus pagamentos registrados"),
 
-  async run(client, interaction) {
+  async execute(interaction) {
     const userId = interaction.user.id;
 
     try {

@@ -11,7 +11,7 @@ module.exports = {
       .setRequired(false)
     ),
 
-  async run(client, interaction) {
+  async execute(interaction) {
     const userId = interaction.user.id;
     const newSteamId = interaction.options.getString("steamid");
 

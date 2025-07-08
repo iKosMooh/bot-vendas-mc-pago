@@ -8,7 +8,7 @@ module.exports = {
     .setName("testrcon")
     .setDescription("Testa a conexão RCON com o servidor"),
 
-  async run(client, interaction) {
+  async execute(interaction) {
     // Verifica se o usuário tem permissão (ManageGuild)
     if (!interaction.member.permissions.has(Discord.PermissionFlagsBits.ManageGuild)) {
       return interaction.reply({ content: "❌ Você não tem permissão para usar este comando.", ephemeral: true });

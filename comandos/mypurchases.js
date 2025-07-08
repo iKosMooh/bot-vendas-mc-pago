@@ -6,7 +6,7 @@ module.exports = {
     .setName("mypurchases")
     .setDescription("Mostra suas compras aprovadas"),
 
-  async run(client, interaction) {
+  async execute(interaction) {
     const userId = interaction.user.id;
 
     try {

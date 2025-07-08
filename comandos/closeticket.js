@@ -5,7 +5,7 @@ module.exports = {
     .setName("closeticket")
     .setDescription("Fecha um ticket de suporte"),
 
-  async run(client, interaction) {
+  async execute(interaction) {
     // Verifica se o canal é um ticket
     if (!interaction.channel.name.startsWith('ticket-')) {
       return interaction.reply({ 

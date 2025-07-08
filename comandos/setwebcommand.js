@@ -26,7 +26,7 @@ module.exports = {
       )
     ),
 
-  async run(client, interaction) {
+  async execute(interaction) {
     // Verifica se o usuário tem permissão (Administrator)
     if (!interaction.member.permissions.has(Discord.PermissionFlagsBits.Administrator)) {
       return interaction.reply({ content: "❌ Você não tem permissão para usar este comando.", ephemeral: true });

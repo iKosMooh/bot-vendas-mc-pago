@@ -11,7 +11,7 @@ module.exports = {
       .setRequired(true)
     ),
 
-  async run(client, interaction) {
+  async execute(interaction) {
     const paymentId = interaction.options.getString("payment_id");
 
     try {

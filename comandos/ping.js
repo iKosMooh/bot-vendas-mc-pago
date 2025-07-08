@@ -5,7 +5,7 @@ module.exports = {
     .setName("ping")
     .setDescription("Verifica a latência do bot"),
 
-  async run(client, interaction) {
+  async execute(interaction) {
     const start = Date.now();
     await interaction.reply("🏓 Pong!");
     const end = Date.now();

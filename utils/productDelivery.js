@@ -459,6 +459,12 @@ class ProductDelivery {
             this.checkExpiredProducts();
         }, CHECK_EXPIRED_PRODUCTS_INTERVAL);
         
+        // Verificação adicional para remoção de produtos expirados
+        setInterval(() => {
+            console.log('🗑️ Verificando produtos expirados para remoção...');
+            this.checkExpiredProductsForRemoval();
+        }, CHECK_EXPIRED_PRODUCTS_INTERVAL);
+        
         // Verificação de pagamentos pendentes
         setInterval(() => {
             console.log('💳 Iniciando verificação automática de pagamentos pendentes...');
@@ -499,7 +505,8 @@ class ProductDelivery {
                 totalChecked++;
                 console.log(`🔍 Verificando compra ${id}: ${purchase.productName}...`);
                 
-                if (purchase.expiresAtTimestamp && purchase.expiresAtTimestamp < now && !purchase.expired) {
+                // Só processa expiração se o produto foi entregue
+                if (purchase.delivered && purchase.expiresAtTimestamp && purchase.expiresAtTimestamp < now && !purchase.expired) {
                     console.log(`⏰ Produto EXPIRADO detectado: ${purchase.productName} (${id})`);
                     purchase.expired = true;
                     purchase.expiredAt = new Date().toISOString();
@@ -508,13 +515,20 @@ class ProductDelivery {
                     
                     // Processar expiração imediatamente
                     await this.processExpiredProduct(purchase);
-                } else if (purchase.expiresAtTimestamp && purchase.expiresAtTimestamp < now) {
+                } else if (purchase.delivered && purchase.expired && !purchase.removed && purchase.expiresAtTimestamp && purchase.expiresAtTimestamp < now) {
+                    console.log(`🗑️ Produto expirado precisa ser removido: ${purchase.productName} (${id})`);
+                    // Processar remoção para produtos já expirados mas não removidos
+                    await this.processExpiredProduct(purchase);
+                    hasExpired = true;
+                } else if (purchase.delivered && purchase.expiresAtTimestamp && purchase.expiresAtTimestamp < now) {
                     console.log(`⏰ Produto já estava marcado como expirado: ${purchase.productName} (${id})`);
-                } else if (purchase.expiresAtTimestamp) {
+                } else if (purchase.delivered && purchase.expiresAtTimestamp) {
                     const timeLeft = purchase.expiresAtTimestamp - now;
                     const hoursLeft = Math.floor(timeLeft / (1000 * 60 * 60));
                     const minutesLeft = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
                     console.log(`✅ Produto válido: ${purchase.productName} (expira em ${hoursLeft}h ${minutesLeft}m)`);
+                } else if (!purchase.delivered) {
+                    console.log(`📦 Produto não entregue ainda: ${purchase.productName}`);
                 } else {
                     console.log(`♾️ Produto sem expiração: ${purchase.productName}`);
                 }
@@ -540,15 +554,14 @@ class ProductDelivery {
         try {
             console.log(`⏰ Processando produto expirado: ${purchase.productName} (${purchase.id})`);
             
-            // Obter dados do produto
-            const product = await this.getProductData(purchase.productId);
-            if (!product) {
-                console.error(`❌ Produto não encontrado: ${purchase.productId}`);
+            // Verificar se já foi removido
+            if (purchase.removed) {
+                console.log(`✅ Produto ${purchase.productName} já foi removido anteriormente`);
                 return;
             }
 
             // Verificar se há comando de remoção
-            const removalCommand = purchase.removalCommand || product.expiration_command;
+            const removalCommand = purchase.removalCommand;
             if (!removalCommand) {
                 console.log(`⚠️ Produto ${purchase.productName} não possui comando de remoção definido`);
                 return;
@@ -566,18 +579,30 @@ class ProductDelivery {
             // Executar comando RCON
             const response = await this.executeCommand(finalCommand);
             
-            // Marcar como processado
+            // Marcar como removido
             purchase.removed = true;
             purchase.removedAt = new Date().toISOString();
             purchase.removalCommandExecuted = finalCommand;
             purchase.removalResponse = response;
 
+            // Salvar alterações
+            const approved = this.getApprovedPurchases();
+            approved[purchase.id] = purchase;
+            this.saveApprovedPurchases(approved);
+
             console.log(`✅ Comando de remoção executado: ${finalCommand}`);
             console.log(`📤 Resposta: ${response}`);
+            console.log(`🗑️ Produto ${purchase.productName} removido com sucesso para ${purchase.username}`);
+            
         } catch (error) {
             console.error(`❌ Erro ao processar produto expirado ${purchase.productName}:`, error);
             purchase.removalError = error.message;
             purchase.removalErrorAt = new Date().toISOString();
+            
+            // Salvar erro
+            const approved = this.getApprovedPurchases();
+            approved[purchase.id] = purchase;
+            this.saveApprovedPurchases(approved);
         }
     }
 
@@ -631,8 +656,10 @@ class ProductDelivery {
         try {
             console.log('🚚 Iniciando verificação de entregas pendentes...');
             const approved = this.getApprovedPurchases();
+            
+            // Filtrar produtos que não foram entregues ainda
             const pendingDeliveries = Object.entries(approved).filter(([id, purchase]) => 
-                !purchase.delivered && !purchase.expired
+                !purchase.delivered
             );
 
             console.log(`🔍 Encontradas ${pendingDeliveries.length} entregas pendentes`);
@@ -695,11 +722,49 @@ class ProductDelivery {
             // Executar comando RCON
             const response = await this.executeCommand(finalCommand);
             
+            const deliveryTime = Date.now();
+            const deliveryDate = new Date(deliveryTime);
+            
             // Marcar como entregue
             purchase.delivered = true;
-            purchase.deliveredAt = new Date().toISOString();
+            purchase.deliveredAt = deliveryDate.toISOString();
             purchase.deliveryCommandExecuted = finalCommand;
             purchase.deliveryResponse = response;
+
+            // Recalcular data de expiração baseada na entrega
+            if (purchase.hasValidity && purchase.validityTime && purchase.validityUnit) {
+                let expirationTime;
+                
+                switch (purchase.validityUnit) {
+                    case 'minutes':
+                    case 'min':
+                        expirationTime = deliveryTime + (purchase.validityTime * 60 * 1000);
+                        break;
+                    case 'hours':
+                    case 'h':
+                        expirationTime = deliveryTime + (purchase.validityTime * 60 * 60 * 1000);
+                        break;
+                    case 'days':
+                    case 'd':
+                        expirationTime = deliveryTime + (purchase.validityTime * 24 * 60 * 60 * 1000);
+                        break;
+                    default:
+                        expirationTime = null;
+                }
+                
+                if (expirationTime) {
+                    purchase.expiresAt = new Date(expirationTime).toISOString();
+                    purchase.expiresAtTimestamp = expirationTime;
+                    console.log(`⏰ Produto ${purchase.productName} expira em: ${new Date(expirationTime).toLocaleString('pt-BR')}`);
+                }
+            }
+
+            // Resetar status de expiração se foi marcado incorretamente
+            if (purchase.expired && !purchase.delivered) {
+                purchase.expired = false;
+                purchase.expiredAt = null;
+                console.log(`🔄 Status de expiração resetado para ${purchase.productName} - produto agora será entregue`);
+            }
 
             // Salvar alterações
             const approved = this.getApprovedPurchases();
@@ -788,6 +853,46 @@ class ProductDelivery {
             fs.writeFileSync(this.approvedPath, JSON.stringify(purchases, null, 2));
         } catch (error) {
             console.error('❌ Erro ao salvar compras aprovadas:', error);
+        }
+    }
+
+    /**
+     * Verifica produtos expirados que precisam ser removidos
+     */
+    async checkExpiredProductsForRemoval() {
+        try {
+            console.log('🗑️ Verificando produtos expirados que precisam ser removidos...');
+            const now = Date.now();
+            const approved = this.getApprovedPurchases();
+            let removedCount = 0;
+            
+            // Filtrar produtos que estão expirados mas não removidos
+            const expiredNotRemoved = Object.entries(approved).filter(([id, purchase]) => 
+                purchase.delivered && purchase.expired && !purchase.removed && 
+                purchase.expiresAtTimestamp && purchase.expiresAtTimestamp < now
+            );
+            
+            console.log(`🔍 Encontrados ${expiredNotRemoved.length} produtos expirados para remover`);
+            
+            if (expiredNotRemoved.length === 0) {
+                console.log('✅ Nenhum produto expirado pendente de remoção');
+                return;
+            }
+            
+            for (const [id, purchase] of expiredNotRemoved) {
+                try {
+                    console.log(`🗑️ Removendo produto expirado: ${purchase.productName} (${id})`);
+                    await this.processExpiredProduct(purchase);
+                    removedCount++;
+                } catch (error) {
+                    console.error(`❌ Erro ao remover produto ${purchase.productName}:`, error);
+                }
+            }
+            
+            console.log(`📊 Remoção concluída: ${removedCount} produtos removidos`);
+            
+        } catch (error) {
+            console.error('❌ Erro ao verificar produtos para remoção:', error);
         }
     }
 }

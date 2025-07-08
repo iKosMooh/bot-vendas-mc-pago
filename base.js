@@ -119,7 +119,7 @@ async function checkPayment(paymentId) {
  */
 async function savePaymentToFile(paymentData, userId, produto) {
     try {
-        const paymentsPath = path.join(__dirname, 'payments.json');
+        const paymentsPath = path.join(__dirname, 'data', 'payments.json');
         let payments = {};
         
         if (fs.existsSync(paymentsPath)) {
@@ -155,7 +155,7 @@ async function savePaymentToFile(paymentData, userId, produto) {
  */
 async function updatePaymentStatus(paymentId, newStatus) {
     try {
-        const paymentsPath = path.join(__dirname, 'payments.json');
+        const paymentsPath = path.join(__dirname, 'data', 'payments.json');
         
         if (fs.existsSync(paymentsPath)) {
             const payments = JSON.parse(fs.readFileSync(paymentsPath, 'utf8'));
@@ -184,7 +184,7 @@ async function updatePaymentStatus(paymentId, newStatus) {
  */
 async function moveToApprovedPurchases(paymentData) {
     try {
-        const approvedPath = path.join(__dirname, 'approved_purchases.json');
+        const approvedPath = path.join(__dirname, 'data', 'approved_purchases.json');
         let approved = {};
         
         if (fs.existsSync(approvedPath)) {
@@ -274,8 +274,8 @@ async function testMercadoPagoConnection() {
  */
 function getPaymentStats() {
     try {
-        const paymentsPath = path.join(__dirname, 'payments.json');
-        const approvedPath = path.join(__dirname, 'approved_purchases.json');
+        const paymentsPath = path.join(__dirname, 'data', 'payments.json');
+        const approvedPath = path.join(__dirname, 'data', 'approved_purchases.json');
         
         let payments = {};
         let approved = {};

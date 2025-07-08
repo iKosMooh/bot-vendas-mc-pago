@@ -1,5 +1,5 @@
-{
-  "purchase_1751923319384_4907sl223": {
+[
+  {
     "id": "purchase_1751923319384_4907sl223",
     "paymentId": "742828492-9e560c8d-a264-43a9-ac46-7bfd0cb05f81",
     "userId": "402595451435614209",
@@ -16,18 +16,14 @@
     "validityUnit": "minutes",
     "approvedAt": "2025-07-07T21:21:59.384Z",
     "approvedAtTimestamp": 1751923319384,
-    "expiresAt": "2025-07-08T03:06:43.515Z",
-    "expiresAtTimestamp": 1751944003515,
-    "delivered": true,
-    "deliveredAt": "2025-07-08T03:05:43.515Z",
-    "expired": true,
-    "expiredAt": "2025-07-08T03:07:43.463Z",
-    "removed": true,
-    "removedAt": "2025-07-08T03:18:07.049Z",
-    "status": "approved",
-    "deliveryCommandExecuted": "p add 76561199017489130 nomade",
-    "deliveryResponse": "Command executed.",
-    "removalCommandExecuted": "p remove 76561199017489130 nomade",
-    "removalResponse": "Command executed."
+    "expiresAt": "2025-07-07T21:22:59.384Z",
+    "expiresAtTimestamp": 1751923379384,
+    "delivered": false,
+    "deliveredAt": "2025-07-07T21:22:00.022Z",
+    "expired": false,
+    "expiredAt": null,
+    "removed": false,
+    "removedAt": null,
+    "status": "approved"
   }
-}
+]

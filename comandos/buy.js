@@ -13,7 +13,7 @@ module.exports = {
         const productId = args[0];
         
         // Verificar se o arquivo de produtos existe
-        const produtosPath = path.join(__dirname, '..', 'produtos.json');
+        const produtosPath = path.join(__dirname, '..', 'data', 'produtos.json');
         if (!fs.existsSync(produtosPath)) {
             return message.reply('❌ Nenhum produto encontrado no sistema.');
         }

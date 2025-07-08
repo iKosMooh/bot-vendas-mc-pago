@@ -1,5 +1,6 @@
 const Discord = require("discord.js");
 const fs = require("fs");
+const { requireAdmin } = require("../utils/permissions");
 
 module.exports = {
   data: new Discord.SlashCommandBuilder()
@@ -7,6 +8,11 @@ module.exports = {
     .setDescription("Lista todas as compras aprovadas"),
 
   async execute(interaction) {
+        // Verificar permissões de administrador
+        if (!requireAdmin({ member: interaction.member, reply: interaction.reply.bind(interaction) }, 'o comando listapproved')) {
+            return;
+        }
+        
     // Verifica se o usuário tem permissão (ManageGuild)
     if (!interaction.member.permissions.has(Discord.PermissionFlagsBits.ManageGuild)) {
       return interaction.reply({ content: "❌ Você não tem permissão para usar este comando.", ephemeral: true });
@@ -14,8 +20,8 @@ module.exports = {
 
     try {
       let approvedData = {};
-      if (fs.existsSync('approved_purchases.json')) {
-        approvedData = JSON.parse(fs.readFileSync('approved_purchases.json', 'utf8'));
+      if (fs.existsSync('data/approved_purchases.json')) {
+        approvedData = JSON.parse(fs.readFileSync('data/approved_purchases.json', 'utf8'));
       }
 
       const purchases = Object.keys(approvedData);

@@ -14,5 +14,18 @@
     "approval_command": "p add {steamid} nomade",
     "expiration_command": "p remove {steamid} nomade",
     "created_at": "2025-07-08T02:05:30.609Z"
+  },
+  "TesteImg": {
+    "name": "TesteImg",
+    "description": "TEsteimg",
+    "value": 0,
+    "image": "https://i.imgur.com/SuB6CRv.png",
+    "stock": null,
+    "infinite": true,
+    "duration_minutes": null,
+    "duration_original": null,
+    "approval_command": "..",
+    "expiration_command": null,
+    "created_at": "2025-07-08T17:08:04.813Z"
   }
 }

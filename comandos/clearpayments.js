@@ -1,5 +1,6 @@
 const Discord = require("discord.js");
 const fs = require("fs");
+const { requireAdmin } = require("../utils/permissions");
 
 module.exports = {
   data: new Discord.SlashCommandBuilder()
@@ -7,21 +8,21 @@ module.exports = {
     .setDescription("Limpa todos os pagamentos registrados"),
 
   async execute(interaction) {
-    // Verifica se o usuário tem permissão (ManageGuild)
-    if (!interaction.member.permissions.has(Discord.PermissionFlagsBits.ManageGuild)) {
-      return interaction.reply({ content: "❌ Você não tem permissão para usar este comando.", ephemeral: true });
+    // Verificar permissões de administrador
+    if (!requireAdmin({ member: interaction.member, reply: interaction.reply.bind(interaction) }, 'o comando clearpayments')) {
+      return;
     }
 
     try {
       // Cria um backup antes de limpar
-      if (fs.existsSync('payments.json')) {
+      if (fs.existsSync('data/payments.json')) {
         const backupName = `payments_backup_${Date.now()}.json`;
-        fs.copyFileSync('payments.json', backupName);
+        fs.copyFileSync('data/payments.json', backupName);
         console.log(`Backup criado: ${backupName}`);
       }
 
       // Limpa o arquivo de pagamentos
-      fs.writeFileSync('payments.json', JSON.stringify({}, null, 2));
+      fs.writeFileSync('data/payments.json', JSON.stringify({}, null, 2));
 
       const embed = new Discord.EmbedBuilder()
         .setTitle("🗑️ Pagamentos Limpos")

@@ -1,17 +1,23 @@
 const { EmbedBuilder, PermissionsBitField } = require('discord.js');
 const fs = require('fs');
 const path = require('path');
+const { requireAdmin } = require("../utils/permissions");
 
 module.exports = {
     name: 'forceexpire',
     description: 'Força a expiração de pagamentos pendentes',
     async execute(message, args) {
         // Verificar permissões de administrador
+        if (!requireAdmin(message, 'o comando forceexpire')) {
+            return;
+        }
+        
+        // Verificar permissões de administrador
         if (!message.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
             return message.reply('❌ Você precisa ter permissões de administrador para usar este comando!');
         }
 
-        const paymentsPath = path.join(__dirname, '..', 'payments.json');
+        const paymentsPath = path.join(__dirname, '..', 'data', 'payments.json');
         
         if (!fs.existsSync(paymentsPath)) {
             return message.reply('❌ Nenhum pagamento encontrado no sistema.');

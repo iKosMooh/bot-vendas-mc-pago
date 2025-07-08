@@ -8,7 +8,7 @@ const Utils = require('./utils');
  */
 class TicketHandler {
     constructor() {
-        this.ticketsPath = path.join(__dirname, '..', 'tickets.json');
+        this.ticketsPath = path.join(__dirname, '..', 'data', 'tickets.json');
         this.configPath = path.join(__dirname, '..', 'config.json');
         this.loadConfig();
     }
@@ -213,7 +213,7 @@ class TicketHandler {
      * @param {Object} guild - Guild do Discord
      * @returns {Promise<Object>} - Resultado da operação
      */
-    async closeTicket(ticketId, user, guild) {
+    async closeTicket(ticketId, user, guild, deleteChannel = false) {
         try {
             const tickets = this.loadTickets();
             const ticket = tickets[ticketId];
@@ -239,15 +239,23 @@ class TicketHandler {
             tickets[ticketId].closedByUsername = user.username;
 
             if (this.saveTickets(tickets)) {
-                // Tentar deletar canal
-                const channel = guild.channels.cache.get(ticket.channelId);
-                if (channel) {
-                    await channel.delete();
+                // Deletar canal apenas se solicitado
+                if (deleteChannel) {
+                    try {
+                        const channel = guild.channels.cache.get(ticket.channelId);
+                        if (channel) {
+                            await channel.delete();
+                        }
+                    } catch (error) {
+                        console.error('❌ Erro ao deletar canal:', error);
+                        // Não falhar o fechamento do ticket se não conseguir deletar o canal
+                    }
                 }
 
                 return {
                     success: true,
-                    ticket: tickets[ticketId]
+                    ticket: tickets[ticketId],
+                    channelId: ticket.channelId
                 };
             } else {
                 return {
@@ -372,7 +380,7 @@ class TicketHandler {
 
             let closedCount = 0;
             for (const ticket of ticketsToClose) {
-                const result = await this.closeTicket(ticket.id, { id: 'system', username: 'System' }, guild);
+                const result = await this.closeTicket(ticket.id, { id: 'system', username: 'System' }, guild, true);
                 if (result.success) {
                     closedCount++;
                 }
@@ -400,6 +408,12 @@ class TicketHandler {
         console.log(`🔍 Processando interação de botão: ${interaction.customId}`);
         
         try {
+            // Verificar se a interação já foi respondida antes de processar
+            if (interaction.replied || interaction.deferred) {
+                console.log('⚠️ Interação já foi processada, ignorando...');
+                return;
+            }
+
             if (interaction.customId === 'create_ticket_report') {
                 console.log('🎫 Criando ticket de reportar problema...');
                 await this.createTicketFromButton(interaction, 'report', 'Reportar Problema');
@@ -423,12 +437,21 @@ class TicketHandler {
                 await this.handlePaymentStatusCheck(interaction);
             } else {
                 console.log(`❓ Botão não reconhecido: ${interaction.customId}`);
-                await interaction.reply({ content: '❌ Botão não reconhecido!', flags: 64 });
+                if (!interaction.replied && !interaction.deferred) {
+                    await interaction.reply({ content: '❌ Botão não reconhecido!', flags: 64 });
+                }
             }
         } catch (error) {
             console.error('❌ Erro ao processar botão:', error);
-            if (!interaction.replied && !interaction.deferred) {
-                await interaction.reply({ content: '❌ Erro ao processar ação!', flags: 64 });
+            
+            try {
+                if (!interaction.replied && !interaction.deferred) {
+                    await interaction.reply({ content: '❌ Erro ao processar ação!', flags: 64 });
+                } else {
+                    console.log('⚠️ Interação já foi respondida, não é possível enviar erro');
+                }
+            } catch (replyError) {
+                console.error('❌ Erro ao responder com mensagem de erro:', replyError.message);
             }
         }
     }
@@ -441,17 +464,32 @@ class TicketHandler {
         console.log(`🔍 Processando select menu: ${interaction.customId}`);
         
         try {
+            // Verificar se a interação já foi respondida
+            if (interaction.replied || interaction.deferred) {
+                console.log('⚠️ Interação de select menu já foi processada, ignorando...');
+                return;
+            }
+
             if (interaction.customId === 'ticket_shop_select') {
                 console.log('🛍️ Processando seleção de produto...');
                 await this.handleShopSelection(interaction);
             } else {
                 console.log(`❓ Select menu não reconhecido: ${interaction.customId}`);
-                await interaction.reply({ content: '❌ Seleção não reconhecida!', flags: 64 });
+                if (!interaction.replied && !interaction.deferred) {
+                    await interaction.reply({ content: '❌ Seleção não reconhecida!', flags: 64 });
+                }
             }
         } catch (error) {
             console.error('❌ Erro ao processar select menu:', error);
-            if (!interaction.replied && !interaction.deferred) {
-                await interaction.reply({ content: '❌ Erro ao processar seleção!', flags: 64 });
+            
+            try {
+                if (!interaction.replied && !interaction.deferred) {
+                    await interaction.reply({ content: '❌ Erro ao processar seleção!', flags: 64 });
+                } else {
+                    console.log('⚠️ Interação de select menu já foi respondida, não é possível enviar erro');
+                }
+            } catch (replyError) {
+                console.error('❌ Erro ao responder com mensagem de erro do select menu:', replyError.message);
             }
         }
     }
@@ -607,19 +645,32 @@ class TicketHandler {
             try {
                 const products = await this.getAvailableProducts();
                 if (products.length > 0) {
-                    const selectMenu = new ActionRowBuilder()
-                        .addComponents(
-                            new StringSelectMenuBuilder()
-                                .setCustomId('ticket_shop_select')
-                                .setPlaceholder('Selecione um produto para comprar')
-                                .addOptions(products.slice(0, 25).map(product => ({
-                                    label: `${product.name} - R$ ${product.price}`,
-                                    description: product.description ? product.description.substring(0, 100) : 'Sem descrição',
-                                    value: product.id,
-                                    emoji: product.stock > 0 ? '✅' : '❌'
-                                })))
-                        );
-                    components.push(selectMenu);
+                    // Filtrar apenas produtos com estoque disponível
+                    const availableProducts = products.filter(product => 
+                        !product.stock || product.stock > 0
+                    );
+                    
+                    if (availableProducts.length > 0) {
+                        const selectMenu = new ActionRowBuilder()
+                            .addComponents(
+                                new StringSelectMenuBuilder()
+                                    .setCustomId('ticket_shop_select')
+                                    .setPlaceholder('Selecione um produto para comprar')
+                                    .addOptions(availableProducts.slice(0, 25).map(product => ({
+                                        label: `${product.name} - R$ ${product.price}`,
+                                        description: product.description ? product.description.substring(0, 100) : 'Sem descrição',
+                                        value: product.id,
+                                        emoji: '🛒'  // Emoji consistente para todos os produtos
+                                    })))
+                            );
+                        components.push(selectMenu);
+                    } else {
+                        embed.addFields({
+                            name: '❌ Sem Produtos Disponíveis',
+                            value: 'Todos os produtos estão sem estoque no momento.',
+                            inline: false
+                        });
+                    }
                 } else {
                     embed.addFields({
                         name: '❌ Sem Produtos',
@@ -657,7 +708,7 @@ class TicketHandler {
     async getAvailableProducts() {
         try {
             console.log('🔍 Carregando produtos disponíveis...');
-            const productsPath = path.join(__dirname, '..', 'produtos.json');
+            const productsPath = path.join(__dirname, '..', 'data', 'produtos.json');
             
             if (!fs.existsSync(productsPath)) {
                 console.log('❌ Arquivo de produtos não encontrado');
@@ -671,13 +722,14 @@ class TicketHandler {
                 id: key,
                 name: productsObj[key].name || key,
                 description: productsObj[key].description || 'Sem descrição',
-                price: productsObj[key].value || 0,
+                price: productsObj[key].value || productsObj[key].price || 0,
                 stock: productsObj[key].stock,
+                image: productsObj[key].image,
                 ...productsObj[key]
             }));
             
             console.log(`✅ ${products.length} produtos carregados`);
-            return products.filter(product => !product.stock || product.stock > 0);
+            return products;
         } catch (error) {
             console.error('❌ Erro ao carregar produtos:', error);
             return [];
@@ -716,6 +768,11 @@ class TicketHandler {
                 .setColor('#00ff00')
                 .setTimestamp();
 
+            // Adicionar imagem se disponível
+            if (product.image) {
+                embed.setThumbnail(product.image);
+            }
+
             const buyButton = new ActionRowBuilder()
                 .addComponents(
                     new ButtonBuilder()
@@ -747,34 +804,76 @@ class TicketHandler {
         console.log('🔍 Fechando ticket via botão...');
         
         try {
+            // Verificar se a interação já foi respondida
+            if (interaction.replied || interaction.deferred) {
+                console.log('⚠️ Interação já foi respondida, ignorando...');
+                return;
+            }
+
             const ticketId = interaction.customId.replace('close_ticket_', '');
-            const result = await this.closeTicket(ticketId, interaction.user, interaction.guild);
+            
+            // Responder imediatamente para evitar timeout
+            await interaction.reply({ 
+                content: '✅ Fechando ticket...', 
+                flags: 64 
+            });
+
+            // Fechar ticket sem deletar canal ainda
+            const result = await this.closeTicket(ticketId, interaction.user, interaction.guild, false);
 
             if (result.success) {
-                await interaction.reply({ 
-                    content: '✅ Ticket será fechado em 5 segundos...', 
-                    flags: 64 
-                });
+                // Editar a resposta para informar que será deletado
+                try {
+                    await interaction.editReply({ 
+                        content: '✅ Ticket fechado! O canal será deletado em 3 segundos...'
+                    });
+                } catch (editError) {
+                    console.log('⚠️ Não foi possível editar a resposta:', editError.message);
+                }
 
+                // Deletar canal após um pequeno delay
                 setTimeout(async () => {
                     try {
-                        await interaction.channel.delete();
-                    } catch (error) {
-                        console.error('❌ Erro ao deletar canal:', error);
+                        // Verificar se o canal ainda existe antes de tentar deletar
+                        const channel = interaction.guild.channels.cache.get(result.channelId);
+                        if (channel) {
+                            await channel.delete();
+                            console.log('✅ Canal do ticket deletado com sucesso');
+                        } else {
+                            console.log('ℹ️ Canal já foi deletado ou não existe mais');
+                        }
+                    } catch (deleteError) {
+                        console.error('❌ Erro ao deletar canal:', deleteError.message);
+                        // Se não conseguir deletar, não é crítico - ticket já foi fechado
                     }
-                }, 5000);
+                }, 3000);
             } else {
-                await interaction.reply({ 
-                    content: `❌ ${result.error}`, 
-                    flags: 64 
-                });
+                try {
+                    await interaction.editReply({ 
+                        content: `❌ Erro ao fechar ticket: ${result.error}`
+                    });
+                } catch (editError) {
+                    console.log('⚠️ Não foi possível editar a resposta de erro:', editError.message);
+                }
             }
         } catch (error) {
             console.error('❌ Erro ao fechar ticket:', error);
-            await interaction.reply({ 
-                content: '❌ Erro ao fechar ticket!', 
-                flags: 64 
-            });
+            
+            // Tentar responder apenas se ainda não respondeu
+            try {
+                if (!interaction.replied && !interaction.deferred) {
+                    await interaction.reply({ 
+                        content: '❌ Erro ao fechar ticket!', 
+                        flags: 64 
+                    });
+                } else {
+                    await interaction.editReply({ 
+                        content: '❌ Erro ao fechar ticket!' 
+                    });
+                }
+            } catch (replyError) {
+                console.error('❌ Erro ao responder interação:', replyError.message);
+            }
         }
     }
 
@@ -800,7 +899,7 @@ class TicketHandler {
             }
             
             // Carregar dados do produto
-            const productsPath = path.join(__dirname, '..', 'produtos.json');
+            const productsPath = path.join(__dirname, '..', 'data', 'produtos.json');
             if (!fs.existsSync(productsPath)) {
                 return interaction.reply({
                     content: '❌ Sistema de produtos não disponível no momento.',

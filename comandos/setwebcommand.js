@@ -1,4 +1,5 @@
 const Discord = require("discord.js");
+const { requireAdmin } = require("../utils/permissions");
 
 module.exports = {
   data: new Discord.SlashCommandBuilder()
@@ -27,6 +28,11 @@ module.exports = {
     ),
 
   async execute(interaction) {
+        // Verificar permissões de administrador
+        if (!requireAdmin({ member: interaction.member, reply: interaction.reply.bind(interaction) }, 'o comando setwebcommand')) {
+            return;
+        }
+        
     // Verifica se o usuário tem permissão (Administrator)
     if (!interaction.member.permissions.has(Discord.PermissionFlagsBits.Administrator)) {
       return interaction.reply({ content: "❌ Você não tem permissão para usar este comando.", ephemeral: true });

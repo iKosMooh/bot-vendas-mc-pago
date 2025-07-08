@@ -1,12 +1,13 @@
 const { EmbedBuilder, ButtonBuilder, ButtonStyle, ActionRowBuilder } = require('discord.js');
 const fs = require('fs');
 const path = require('path');
+const config = require('../config.json');
 
 module.exports = {
     name: 'shop',
     description: 'Exibe o catálogo de produtos disponíveis',
     execute(message, args) {
-        const produtosPath = path.join(__dirname, '..', 'produtos.json');
+        const produtosPath = path.join(__dirname, '..', 'data', 'produtos.json');
         
         if (!fs.existsSync(produtosPath)) {
             return message.reply('❌ Nenhum produto encontrado no sistema.');
@@ -41,7 +42,7 @@ module.exports = {
             .setTitle('🛍️ Catálogo de Produtos')
             .setDescription(`Confira nossos produtos disponíveis:\n\n**Página ${page} de ${totalPages}**`)
             .setColor('#00ff00')
-            .setFooter({ text: `Total de produtos: ${produtos.length} | Use !buy <ID> para comprar`, iconURL: message.client.user.displayAvatarURL() })
+            .setFooter({ text: `Total de produtos: ${produtos.length} | Use ${config.prefix || '!'}buy <ID> para comprar`, iconURL: message.client.user.displayAvatarURL() })
             .setTimestamp();
 
         // Adicionar produtos
@@ -51,10 +52,15 @@ module.exports = {
             
             embed.addFields({
                 name: `${statusEmoji} ${produto.name} - R$ ${produto.price}`,
-                value: `**ID:** \`${produto.id}\`\n**Estoque:** ${stockText}\n**Descrição:** ${produto.description || 'Sem descrição'}\n\`!buy ${produto.id}\` para comprar`,
+                value: `**ID:** \`${produto.id}\`\n**Estoque:** ${stockText}\n**Descrição:** ${produto.description || 'Sem descrição'}\n\`${config.prefix || '!'}buy ${produto.id}\` para comprar`,
                 inline: false
             });
         });
+
+        // Adicionar imagem do primeiro produto se disponível
+        if (currentProducts.length > 0 && currentProducts[0].image) {
+            embed.setThumbnail(currentProducts[0].image);
+        }
 
         // Botões de navegação
         const components = [];

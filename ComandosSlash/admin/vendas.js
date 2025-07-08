@@ -1,5 +1,6 @@
 const Discord = require("discord.js");
 const fs = require("fs");
+const { requireAdmin } = require("../../utils/permissions");
 
 module.exports = {
   data: new Discord.SlashCommandBuilder()
@@ -37,9 +38,14 @@ module.exports = {
     ),
 
   async run(client, interaction) {
+        // Verificar permissões de administrador
+        if (!requireAdmin({ member: interaction.member, reply: interaction.reply.bind(interaction) }, 'o comando vendas')) {
+            return;
+        }
+        
     // Verifica se o usuário tem permissão (ManageGuild)
     if (!interaction.member.permissions.has(Discord.PermissionFlagsBits.ManageGuild)) {
-      return interaction.reply({ content: "❌ Você não tem permissão para usar este comando.", flags: 64 });
+      return interaction.reply({ content: "❌ Você não tem permissão para usar este comando.", ephemeral: true });
     }
 
     const nome = interaction.options.getString("nome");
@@ -51,7 +57,7 @@ module.exports = {
 
     // Verifica se o canal é de texto
     if (canal.type !== Discord.ChannelType.GuildText) {
-      return interaction.reply({ content: "❌ O canal deve ser um canal de texto.", flags: 64 });
+      return interaction.reply({ content: "❌ O canal deve ser um canal de texto.", ephemeral: true });
     }
 
     // Cria o embed do produto
@@ -82,8 +88,8 @@ module.exports = {
 
       // Salva as informações do produto
       let produtosData = {};
-      if (fs.existsSync('produtos.json')) {
-        produtosData = JSON.parse(fs.readFileSync('produtos.json', 'utf8'));
+      if (fs.existsSync('data/produtos.json')) {
+        produtosData = JSON.parse(fs.readFileSync('data/produtos.json', 'utf8'));
       }
 
       produtosData[nome] = {
@@ -96,16 +102,16 @@ module.exports = {
         announcementId: message.id
       };
 
-      fs.writeFileSync('produtos.json', JSON.stringify(produtosData, null, 2));
+      fs.writeFileSync('data/produtos.json', JSON.stringify(produtosData, null, 2));
 
       return interaction.reply({ 
         content: `✅ Produto "${nome}" anunciado com sucesso no canal ${canal}!`, 
-        flags: 64 
+        ephemeral: true 
       });
 
     } catch (error) {
       console.error("Erro ao anunciar produto:", error);
-      return interaction.reply({ content: "❌ Erro ao anunciar o produto.", flags: 64 });
+      return interaction.reply({ content: "❌ Erro ao anunciar o produto.", ephemeral: true });
     }
   }
 };

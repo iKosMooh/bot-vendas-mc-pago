@@ -16,8 +16,8 @@ module.exports = {
 
     try {
       let paymentsData = {};
-      if (fs.existsSync('payments.json')) {
-        paymentsData = JSON.parse(fs.readFileSync('payments.json', 'utf8'));
+      if (fs.existsSync('data/payments.json')) {
+        paymentsData = JSON.parse(fs.readFileSync('data/payments.json', 'utf8'));
       }
 
       const payment = paymentsData[paymentId];

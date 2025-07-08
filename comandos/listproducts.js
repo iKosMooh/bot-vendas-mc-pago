@@ -14,8 +14,8 @@ module.exports = {
 
     try {
       let produtosData = {};
-      if (fs.existsSync('produtos.json')) {
-        produtosData = JSON.parse(fs.readFileSync('produtos.json', 'utf8'));
+      if (fs.existsSync('data/produtos.json')) {
+        produtosData = JSON.parse(fs.readFileSync('data/produtos.json', 'utf8'));
       }
 
       const produtos = Object.keys(produtosData);

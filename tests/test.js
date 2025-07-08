@@ -72,7 +72,7 @@ try {
 // Verificar produtos
 console.log('\n🛍️ Verificando produtos...');
 try {
-    const produtos = require('./produtos.json');
+    const produtos = require('../data/produtos.json');
     console.log(`✅ ${produtos.length} produtos encontrados`);
     produtos.forEach(produto => {
         console.log(`   - ${produto.name} (${produto.id}) - R$ ${produto.price}`);

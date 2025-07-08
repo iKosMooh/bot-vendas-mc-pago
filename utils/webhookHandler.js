@@ -10,8 +10,8 @@ const logger = require('./logger');
 class WebhookHandler {
     constructor() {
         this.configPath = path.join(__dirname, '..', 'config.json');
-        this.paymentsPath = path.join(__dirname, '..', 'payments.json');
-        this.approvedPath = path.join(__dirname, '..', 'approved_purchases.json');
+        this.paymentsPath = path.join(__dirname, '..', 'data', 'payments.json');
+        this.approvedPath = path.join(__dirname, '..', 'data', 'approved_purchases.json');
         this.loadConfig();
         this.app = express();
         this.setupMiddleware();

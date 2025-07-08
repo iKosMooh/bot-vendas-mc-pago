@@ -16,7 +16,7 @@ module.exports = {
   async execute(interaction) {
     // Verifica se o usuário tem permissão (ManageGuild)
     if (!interaction.member.permissions.has(Discord.PermissionFlagsBits.ManageGuild)) {
-      return interaction.reply({ content: "❌ Você não tem permissão para usar este comando.", flags: 64 });
+      return interaction.reply({ content: "❌ Você não tem permissão para usar este comando.", ephemeral: true });
     }
 
     const paymentId = interaction.options.getString("payment_id");
@@ -38,13 +38,13 @@ module.exports = {
         )
         .setTimestamp();
 
-      return interaction.reply({ embeds: [embed], flags: 64 });
+      return interaction.reply({ embeds: [embed], ephemeral: true });
 
     } catch (error) {
       console.error("Erro ao verificar pagamento:", error);
       return interaction.reply({ 
         content: "❌ Erro ao verificar pagamento. Verifique se o ID está correto.", 
-        flags: 64 
+        ephemeral: true 
       });
     }
   }

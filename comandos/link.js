@@ -17,8 +17,8 @@ module.exports = {
 
     try {
       let linksData = {};
-      if (fs.existsSync('links.json')) {
-        linksData = JSON.parse(fs.readFileSync('links.json', 'utf8'));
+      if (fs.existsSync('data/links.json')) {
+        linksData = JSON.parse(fs.readFileSync('data/links.json', 'utf8'));
       }
 
       if (newSteamId) {
@@ -34,7 +34,7 @@ module.exports = {
         if (!steamId) {
           return interaction.reply({
             content: '❌ Steam64ID inválido. Use 17 dígitos ou link do perfil.',
-            flags: 64
+            ephemeral: true
           });
         }
 
@@ -43,7 +43,7 @@ module.exports = {
           : interaction.member.nickname || interaction.member.user.username;
 
         linksData[userId] = { username: userTag, steamId };
-        fs.writeFileSync('links.json', JSON.stringify(linksData, null, 2), 'utf8');
+        fs.writeFileSync('data/links.json', JSON.stringify(linksData, null, 2), 'utf8');
 
         const embed = new Discord.EmbedBuilder()
           .setTitle("🔗 Steam Vinculado")

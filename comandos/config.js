@@ -1,11 +1,17 @@
 const { EmbedBuilder, ButtonBuilder, ButtonStyle, ActionRowBuilder, PermissionsBitField } = require('discord.js');
 const fs = require('fs');
 const path = require('path');
+const { requireAdmin } = require("../utils/permissions");
 
 module.exports = {
     name: 'config',
     description: 'Gerencia as configurações do bot',
     execute(message, args) {
+        // Verificar permissões de administrador
+        if (!requireAdmin(message, 'o comando config')) {
+            return;
+        }
+        
         // Verificar permissões de administrador
         if (!message.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
             return message.reply('❌ Você precisa ter permissões de administrador para usar este comando!');

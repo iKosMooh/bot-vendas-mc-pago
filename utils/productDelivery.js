@@ -29,9 +29,9 @@ const CHECK_LOW_STOCK_INTERVAL = 2 * 60 * 60 * 1000; // 2 horas
  */
 class ProductDelivery {
     constructor() {
-        this.configPath = path.join(__dirname, '..', 'config.json');
+        this.configPath = path.join(__dirname, '..', 'data', 'config.json');
         this.approvedPath = path.join(__dirname, '..', 'data', 'approved_purchases.json');
-        this.linksPath = path.join(__dirname, '..', 'links.json');
+        this.linksPath = path.join(__dirname, '..', 'data', 'links.json');
         this.loadConfig();
         this.rconConnection = null;
     }
@@ -201,7 +201,7 @@ class ProductDelivery {
      */
     async getProductData(productId) {
         try {
-            const productsPath = path.join(__dirname, '..', 'produtos.json');
+            const productsPath = path.join(__dirname, '..', 'data', 'produtos.json');
             if (!fs.existsSync(productsPath)) {
                 return null;
             }
@@ -612,7 +612,7 @@ class ProductDelivery {
     async checkPendingPayments() {
         try {
             console.log('💳 Iniciando verificação de pagamentos pendentes...');
-            const paymentsPath = path.join(__dirname, '..', 'payments.json');
+            const paymentsPath = path.join(__dirname, '..', 'data', 'payments.json');
             
             if (!fs.existsSync(paymentsPath)) {
                 console.log('📄 Arquivo de pagamentos não encontrado, criando...');
@@ -792,7 +792,7 @@ class ProductDelivery {
     async checkLowStock() {
         try {
             console.log('📦 Iniciando verificação de estoque baixo...');
-            const productsPath = path.join(__dirname, '..', 'produtos.json');
+            const productsPath = path.join(__dirname, '..', 'data', 'produtos.json');
             
             if (!fs.existsSync(productsPath)) {
                 console.log('📄 Arquivo de produtos não encontrado');

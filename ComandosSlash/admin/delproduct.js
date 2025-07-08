@@ -1,5 +1,6 @@
 const Discord = require("discord.js");
 const fs = require("fs");
+const { requireAdmin } = require("../../utils/permissions");
 
 module.exports = {
   data: new Discord.SlashCommandBuilder()
@@ -12,9 +13,9 @@ module.exports = {
     ),
 
   async run(client, interaction) {
-    // Verifica se o usuário tem permissão (ManageGuild)
-    if (!interaction.member.permissions.has(Discord.PermissionFlagsBits.ManageGuild)) {
-      return interaction.reply({ content: "❌ Você não tem permissão para usar este comando.", ephemeral: true });
+    // Verificar permissões de administrador
+    if (!requireAdmin({ member: interaction.member, reply: interaction.reply.bind(interaction) }, 'o comando delproduct')) {
+      return;
     }
 
     const nomeProduto = interaction.options.getString("nome");
@@ -22,8 +23,8 @@ module.exports = {
     // Lê o arquivo de produtos
     let produtosData = {};
     try {
-      if (fs.existsSync('produtos.json')) {
-        produtosData = JSON.parse(fs.readFileSync('produtos.json', 'utf8'));
+      if (fs.existsSync('data/produtos.json')) {
+        produtosData = JSON.parse(fs.readFileSync('data/produtos.json', 'utf8'));
       }
     } catch (error) {
       return interaction.reply({ content: "❌ Erro ao ler arquivo de produtos.", ephemeral: true });
@@ -55,7 +56,7 @@ module.exports = {
     delete produtosData[nomeProduto];
     
     try {
-      fs.writeFileSync('produtos.json', JSON.stringify(produtosData, null, 2));
+      fs.writeFileSync('data/produtos.json', JSON.stringify(produtosData, null, 2));
     } catch (error) {
       return interaction.reply({ content: "❌ Erro ao salvar arquivo de produtos.", ephemeral: true });
     }

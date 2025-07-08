@@ -15,9 +15,9 @@ module.exports = {
         }
 
         // Carregar dados de pagamentos
-        const paymentsPath = path.join(__dirname, '..', 'payments.json');
-        const approvedPath = path.join(__dirname, '..', 'approved_purchases.json');
-        const linksPath = path.join(__dirname, '..', 'links.json');
+        const paymentsPath = path.join(__dirname, '..', 'data', 'payments.json');
+        const approvedPath = path.join(__dirname, '..', 'data', 'approved_purchases.json');
+        const linksPath = path.join(__dirname, '..', 'data', 'links.json');
 
         let payments = [];
         let approvedPurchases = [];

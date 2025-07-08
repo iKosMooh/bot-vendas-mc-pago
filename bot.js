@@ -72,12 +72,11 @@ client.once('ready', async () => {
         console.log('🔍 Iniciando verificador automático...');
         startExpiryChecker();
         console.log('✅ Sistema de verificações automáticas configurado');
+        console.log('  📋 Verificação de produtos expirados: a cada 30 minutos');
+        console.log('  💳 Verificação de pagamentos pendentes: a cada 10 minutos');
+        console.log('  🚚 Verificação de entregas pendentes: a cada 15 minutos');
+        console.log('  📦 Verificação de estoque baixo: a cada 2 horas');
         console.log('✅ Verificações automáticas iniciadas');
-
-        // Iniciar verificador automático de pagamentos
-        const { startPaymentChecker } = require('./utils/mercadoPago');
-        startPaymentChecker();
-        console.log('✅ Verificador automático de pagamentos iniciado');
     } catch (error) {
         console.error('❌ Erro ao iniciar verificações automáticas:', error);
     }
@@ -117,8 +116,14 @@ client.on('interactionCreate', async interaction => {
             await ticketHandler.handleButtonInteraction(interaction);
         } catch (error) {
             console.error('Erro ao processar botão:', error);
-            if (!interaction.replied && !interaction.deferred) {
-                await interaction.reply({ content: 'Erro ao processar ação!', flags: 64 });
+            try {
+                if (!interaction.replied && !interaction.deferred) {
+                    await interaction.reply({ content: 'Erro ao processar ação!', flags: 64 });
+                } else {
+                    await interaction.followUp({ content: 'Erro ao processar ação!', flags: 64 });
+                }
+            } catch (replyError) {
+                console.error('Erro ao responder interação de botão:', replyError.message);
             }
         }
         return;
@@ -131,8 +136,14 @@ client.on('interactionCreate', async interaction => {
             await ticketHandler.handleSelectMenuInteraction(interaction);
         } catch (error) {
             console.error('Erro ao processar select menu:', error);
-            if (!interaction.replied && !interaction.deferred) {
-                await interaction.reply({ content: 'Erro ao processar seleção!', flags: 64 });
+            try {
+                if (!interaction.replied && !interaction.deferred) {
+                    await interaction.reply({ content: 'Erro ao processar seleção!', flags: 64 });
+                } else {
+                    await interaction.followUp({ content: 'Erro ao processar seleção!', flags: 64 });
+                }
+            } catch (replyError) {
+                console.error('Erro ao responder interação de select menu:', replyError.message);
             }
         }
         return;

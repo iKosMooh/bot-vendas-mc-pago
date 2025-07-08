@@ -1,4 +1,5 @@
 const Discord = require("discord.js");
+const { requireAdmin } = require("../utils/permissions");
 
 module.exports = {
   data: new Discord.SlashCommandBuilder()
@@ -13,6 +14,11 @@ module.exports = {
     ),
 
   async execute(interaction) {
+        // Verificar permissões de administrador
+        if (!requireAdmin({ member: interaction.member, reply: interaction.reply.bind(interaction) }, 'o comando clear')) {
+            return;
+        }
+        
     // Verifica se o comando está sendo usado em um servidor
     if (!interaction.guild) {
       return interaction.reply({ content: "❌ Este comando só pode ser usado em servidores.", ephemeral: true });

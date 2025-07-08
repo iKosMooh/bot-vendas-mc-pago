@@ -1,5 +1,6 @@
 const Discord = require("discord.js");
 const fs = require("fs");
+const { requireAdmin } = require("../utils/permissions");
 
 module.exports = {
   data: new Discord.SlashCommandBuilder()
@@ -17,6 +18,11 @@ module.exports = {
     ),
 
   async execute(interaction) {
+        // Verificar permissões de administrador
+        if (!requireAdmin({ member: interaction.member, reply: interaction.reply.bind(interaction) }, 'o comando forcedelivery')) {
+            return;
+        }
+        
     // Verifica se o usuário tem permissão (ManageGuild)
     if (!interaction.member.permissions.has(Discord.PermissionFlagsBits.ManageGuild)) {
       return interaction.reply({ content: "❌ Você não tem permissão para usar este comando.", ephemeral: true });
@@ -27,8 +33,8 @@ module.exports = {
 
     try {
       let paymentsData = {};
-      if (fs.existsSync('payments.json')) {
-        paymentsData = JSON.parse(fs.readFileSync('payments.json', 'utf8'));
+      if (fs.existsSync('data/payments.json')) {
+        paymentsData = JSON.parse(fs.readFileSync('data/payments.json', 'utf8'));
       }
 
       const payment = paymentsData[paymentId];
@@ -45,12 +51,12 @@ module.exports = {
       payment.deliveredAt = new Date().toISOString();
       payment.deliveredBy = interaction.user.id;
       
-      fs.writeFileSync('payments.json', JSON.stringify(paymentsData, null, 2));
+      fs.writeFileSync('data/payments.json', JSON.stringify(paymentsData, null, 2));
 
       // Adiciona às compras aprovadas se não estiver
       let approvedData = {};
-      if (fs.existsSync('approved_purchases.json')) {
-        approvedData = JSON.parse(fs.readFileSync('approved_purchases.json', 'utf8'));
+      if (fs.existsSync('data/approved_purchases.json')) {
+        approvedData = JSON.parse(fs.readFileSync('data/approved_purchases.json', 'utf8'));
       }
 
       if (!approvedData[paymentId]) {
@@ -63,7 +69,7 @@ module.exports = {
           deliveredBy: interaction.user.username,
           deliveredAt: new Date().toISOString()
         };
-        fs.writeFileSync('approved_purchases.json', JSON.stringify(approvedData, null, 2));
+        fs.writeFileSync('data/approved_purchases.json', JSON.stringify(approvedData, null, 2));
       }
 
       // Notifica o usuário

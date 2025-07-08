@@ -1,10 +1,16 @@
 const { EmbedBuilder, PermissionsBitField } = require('discord.js');
 const Utils = require('../utils/utils');
+const { requireAdmin } = require("../utils/permissions");
 
 module.exports = {
     name: 'setchannels',
     description: 'Configura os canais do sistema',
     async execute(message, args) {
+        // Verificar permissões de administrador
+        if (!requireAdmin(message, 'o comando setchannels')) {
+            return;
+        }
+        
         // Verificar permissões de administrador
         if (!message.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
             return message.reply('❌ Você precisa ter permissões de administrador para usar este comando!');

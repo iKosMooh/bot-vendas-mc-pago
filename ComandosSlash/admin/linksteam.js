@@ -1,6 +1,7 @@
 const { SlashCommandBuilder, EmbedBuilder, PermissionsBitField } = require('discord.js');
 const fs = require('fs');
 const path = require('path');
+const { requireAdmin } = require("../../utils/permissions");
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -29,6 +30,11 @@ module.exports = {
 
     async execute(interaction) {
         // Verificar permissões de administrador
+        if (!requireAdmin({ member: interaction.member, reply: interaction.reply.bind(interaction) }, 'o comando linksteam')) {
+            return;
+        }
+        
+        // Verificar permissões de administrador
         if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
             return interaction.reply({ 
                 content: '❌ Você precisa ter permissões de administrador para usar este comando!', 
@@ -48,7 +54,7 @@ module.exports = {
             });
         }
 
-        const linksPath = path.join(__dirname, '..', '..', 'links.json');
+        const linksPath = path.join(__dirname, '..', '..', 'data', 'links.json');
         let links = {};
 
         // Carregar links existentes

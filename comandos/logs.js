@@ -1,11 +1,17 @@
 const { EmbedBuilder, ButtonBuilder, ButtonStyle, ActionRowBuilder, PermissionsBitField } = require('discord.js');
 const fs = require('fs');
 const path = require('path');
+const { requireAdmin } = require("../utils/permissions");
 
 module.exports = {
     name: 'logs',
     description: 'Gerencia e visualiza logs do sistema',
     execute(message, args) {
+        // Verificar permissões de administrador
+        if (!requireAdmin(message, 'o comando logs')) {
+            return;
+        }
+        
         // Verificar permissões de administrador
         if (!message.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
             return message.reply('❌ Você precisa ter permissões de administrador para usar este comando!');
@@ -91,7 +97,7 @@ module.exports = {
 };
 
 function showPaymentLogs(message) {
-    const paymentsPath = path.join(__dirname, '..', 'payments.json');
+    const paymentsPath = path.join(__dirname, '..', 'data', 'payments.json');
     
     if (!fs.existsSync(paymentsPath)) {
         return message.reply('❌ Nenhum log de pagamentos encontrado.');
@@ -144,7 +150,7 @@ function showPaymentLogs(message) {
 }
 
 function showPurchaseLogs(message) {
-    const purchasesPath = path.join(__dirname, '..', 'approved_purchases.json');
+    const purchasesPath = path.join(__dirname, '..', 'data', 'approved_purchases.json');
     
     if (!fs.existsSync(purchasesPath)) {
         return message.reply('❌ Nenhum log de compras encontrado.');

@@ -2,6 +2,7 @@ const Discord = require("discord.js");
 const { SlashCommandBuilder } = require('discord.js');
 const { Rcon } = require('rcon-client');
 const config = require('../config.json');
+const { requireAdmin } = require("../utils/permissions");
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -9,6 +10,11 @@ module.exports = {
     .setDescription("Reinicia a conexão RCON"),
 
   async execute(interaction) {
+        // Verificar permissões de administrador
+        if (!requireAdmin({ member: interaction.member, reply: interaction.reply.bind(interaction) }, 'o comando rconreset')) {
+            return;
+        }
+        
     // Verifica se o usuário tem permissão (ManageGuild)
     if (!interaction.member.permissions.has(Discord.PermissionFlagsBits.ManageGuild)) {
       return interaction.reply({ content: "❌ Você não tem permissão para usar este comando.", ephemeral: true });

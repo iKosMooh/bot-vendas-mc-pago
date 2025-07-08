@@ -1,5 +1,6 @@
 const Discord = require("discord.js");
 const mercadopago = require("mercadopago");
+const { requireAdmin } = require("../utils/permissions");
 
 module.exports = {
   data: new Discord.SlashCommandBuilder()
@@ -7,6 +8,11 @@ module.exports = {
     .setDescription("Verifica o status do Mercado Pago"),
 
   async execute(interaction) {
+        // Verificar permissões de administrador
+        if (!requireAdmin({ member: interaction.member, reply: interaction.reply.bind(interaction) }, 'o comando mpstatus')) {
+            return;
+        }
+        
     // Verifica se o usuário tem permissão (ManageGuild)
     if (!interaction.member.permissions.has(Discord.PermissionFlagsBits.ManageGuild)) {
       return interaction.reply({ content: "❌ Você não tem permissão para usar este comando.", ephemeral: true });

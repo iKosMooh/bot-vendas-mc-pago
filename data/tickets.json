@@ -1,15 +1,58 @@
-[
-  {
-    "id": "ticket-1751923093331-ayubj",
+{
+  "1751996711860": {
+    "id": "1751996711860",
     "userId": "402595451435614209",
-    "username": "ikosmooh",
-    "channelId": "1391891122053185579",
-    "tipo": "compra",
-    "motivo": "Ticket criado via botão - compra",
-    "status": "open",
-    "criadoEm": "2025-07-07T21:18:13.784Z",
-    "fechadoEm": null,
-    "fechadoPor": null,
-    "selectedProductId": null
+    "userName": "ikosmooh",
+    "channelId": "1392199912388694150",
+    "type": "report",
+    "reason": "Reportar Problema",
+    "status": "closed",
+    "createdAt": "2025-07-08T17:45:11.860Z",
+    "messages": [],
+    "closedAt": "2025-07-08T17:45:16.226Z",
+    "closedBy": "402595451435614209",
+    "closedByUsername": "ikosmooh"
+  },
+  "1751996736415": {
+    "id": "1751996736415",
+    "userId": "402595451435614209",
+    "userName": "ikosmooh",
+    "channelId": "1392200015216119958",
+    "type": "buy",
+    "reason": "Compra",
+    "status": "closed",
+    "createdAt": "2025-07-08T17:45:36.415Z",
+    "messages": [],
+    "closedAt": "2025-07-08T17:45:54.352Z",
+    "closedBy": "402595451435614209",
+    "closedByUsername": "ikosmooh"
+  },
+  "1751997523918": {
+    "id": "1751997523918",
+    "userId": "402595451435614209",
+    "userName": "ikosmooh",
+    "channelId": "1392203318696218655",
+    "type": "report",
+    "reason": "Reportar Problema",
+    "status": "closed",
+    "createdAt": "2025-07-08T17:58:43.918Z",
+    "messages": [],
+    "closedAt": "2025-07-08T17:58:47.010Z",
+    "closedBy": "402595451435614209",
+    "closedByUsername": "ikosmooh"
+  },
+  "1751997534035": {
+    "id": "1751997534035",
+    "userId": "402595451435614209",
+    "userName": "ikosmooh",
+    "channelId": "1392203361092370502",
+    "type": "buy",
+    "reason": "Compra",
+    "status": "closed",
+    "createdAt": "2025-07-08T17:58:54.035Z",
+    "messages": [],
+    "closedAt": "2025-07-08T17:59:13.267Z",
+    "closedBy": "402595451435614209",
+    "closedByUsername": "ikosmooh"
   }
-]
+}

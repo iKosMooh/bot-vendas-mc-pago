@@ -1,11 +1,17 @@
 const { EmbedBuilder, PermissionsBitField } = require('discord.js');
 const fs = require('fs');
 const path = require('path');
+const { requireAdmin } = require("../utils/permissions");
 
 module.exports = {
     name: 'forceremoval',
     description: 'Remove forçadamente um produto do sistema',
     async execute(message, args) {
+        // Verificar permissões de administrador
+        if (!requireAdmin(message, 'o comando forceremoval')) {
+            return;
+        }
+        
         // Verificar permissões de administrador
         if (!message.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
             return message.reply('❌ Você precisa ter permissões de administrador para usar este comando!');
@@ -18,7 +24,7 @@ module.exports = {
         const productId = args[0].toLowerCase();
 
         // Verificar se o arquivo de produtos existe
-        const produtosPath = path.join(__dirname, '..', 'produtos.json');
+        const produtosPath = path.join(__dirname, '..', 'data', 'produtos.json');
         if (!fs.existsSync(produtosPath)) {
             return message.reply('❌ Nenhum produto encontrado no sistema.');
         }

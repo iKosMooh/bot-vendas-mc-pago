@@ -1,5 +1,6 @@
 const Discord = require("discord.js");
 const fs = require("fs");
+const { requireAdmin } = require("../utils/permissions");
 
 module.exports = {
   data: new Discord.SlashCommandBuilder()
@@ -7,6 +8,11 @@ module.exports = {
     .setDescription("Sincroniza pagamentos com o Mercado Pago"),
 
   async execute(interaction) {
+        // Verificar permissões de administrador
+        if (!requireAdmin({ member: interaction.member, reply: interaction.reply.bind(interaction) }, 'o comando syncpayments')) {
+            return;
+        }
+        
     // Verifica se o usuário tem permissão (ManageGuild)
     if (!interaction.member.permissions.has(Discord.PermissionFlagsBits.ManageGuild)) {
       return interaction.reply({ content: "❌ Você não tem permissão para usar este comando.", ephemeral: true });
@@ -16,8 +22,8 @@ module.exports = {
 
     try {
       let paymentsData = {};
-      if (fs.existsSync('payments.json')) {
-        paymentsData = JSON.parse(fs.readFileSync('payments.json', 'utf8'));
+      if (fs.existsSync('data/payments.json')) {
+        paymentsData = JSON.parse(fs.readFileSync('data/payments.json', 'utf8'));
       }
 
       let syncedCount = 0;

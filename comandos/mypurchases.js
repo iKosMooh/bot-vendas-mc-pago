@@ -11,8 +11,8 @@ module.exports = {
 
     try {
       let approvedData = {};
-      if (fs.existsSync('approved_purchases.json')) {
-        approvedData = JSON.parse(fs.readFileSync('approved_purchases.json', 'utf8'));
+      if (fs.existsSync('data/approved_purchases.json')) {
+        approvedData = JSON.parse(fs.readFileSync('data/approved_purchases.json', 'utf8'));
       }
 
       const userPurchases = Object.keys(approvedData).filter(paymentId => 

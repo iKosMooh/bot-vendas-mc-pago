@@ -40,10 +40,10 @@ try {
 
 // Verificar se os arquivos essenciais existem
 const essentialFiles = [
-    'produtos.json',
-    'payments.json',
-    'links.json',
-    'approved_purchases.json',
+    'data/produtos.json',
+    'data/payments.json',
+    'data/links.json',
+    'data/approved_purchases.json',
     'data/channels.json'
 ];
 

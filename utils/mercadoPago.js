@@ -4,7 +4,7 @@ const path = require('path');
 
 // Carregar configurações
 let config = {};
-const configPath = path.join(__dirname, '..', 'config.json');
+const configPath = path.join(__dirname, '..', 'data', 'config.json');
 if (fs.existsSync(configPath)) {
     try {
         config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
@@ -212,7 +212,7 @@ async function checkPaymentStatus(paymentId) {
  */
 async function savePaymentToFile(paymentData, userId, produto, paymentMethod = 'pix') {
     try {
-        const paymentsPath = path.join(__dirname, '..', 'payments.json');
+        const paymentsPath = path.join(__dirname, '..', 'data', 'payments.json');
         let payments = {};
         
         if (fs.existsSync(paymentsPath)) {
@@ -265,7 +265,7 @@ async function savePaymentToFile(paymentData, userId, produto, paymentMethod = '
  */
 async function updatePaymentStatus(paymentId, newStatus) {
     try {
-        const paymentsPath = path.join(__dirname, '..', 'payments.json');
+        const paymentsPath = path.join(__dirname, '..', 'data', 'payments.json');
         
         if (fs.existsSync(paymentsPath)) {
             const payments = JSON.parse(fs.readFileSync(paymentsPath, 'utf8'));
@@ -304,7 +304,7 @@ async function moveToApprovedPurchases(paymentData) {
         // Calcular tempo de expiração baseado no produto
         let expiresAt = null;
         try {
-            const productsPath = path.join(__dirname, '..', 'produtos.json');
+            const productsPath = path.join(__dirname, '..', 'data', 'produtos.json');
             if (fs.existsSync(productsPath)) {
                 const products = JSON.parse(fs.readFileSync(productsPath, 'utf8'));
                 const product = products[paymentData.productId];
@@ -359,7 +359,7 @@ async function moveToApprovedPurchases(paymentData) {
  */
 function getUserPayments(userId) {
     try {
-        const paymentsPath = path.join(__dirname, '..', 'payments.json');
+        const paymentsPath = path.join(__dirname, '..', 'data', 'payments.json');
         
         if (!fs.existsSync(paymentsPath)) {
             return [];
@@ -451,7 +451,7 @@ async function testMercadoPagoConnection() {
  */
 function getPaymentStats() {
     try {
-        const paymentsPath = path.join(__dirname, '..', 'payments.json');
+        const paymentsPath = path.join(__dirname, '..', 'data', 'payments.json');
         const approvedPath = path.join(__dirname, '..', 'data', 'approved_purchases.json');
         
         let payments = {};
@@ -538,7 +538,7 @@ function stopPaymentChecker() {
  */
 async function checkAllPendingPayments() {
     try {
-        const paymentsPath = path.join(__dirname, '..', 'payments.json');
+        const paymentsPath = path.join(__dirname, '..', 'data', 'payments.json');
         
         if (!fs.existsSync(paymentsPath)) {
             console.log('📄 Arquivo de pagamentos não encontrado, criando...');
@@ -603,7 +603,7 @@ async function processApprovedPayment(paymentId, payment) {
         console.log(`🚚 Processando entrega para pagamento ${paymentId}...`);
         
         // Carregar dados do produto
-        const productsPath = path.join(__dirname, '..', 'produtos.json');
+        const productsPath = path.join(__dirname, '..', 'data', 'produtos.json');
         if (!fs.existsSync(productsPath)) {
             throw new Error('Arquivo de produtos não encontrado');
         }
@@ -616,7 +616,7 @@ async function processApprovedPayment(paymentId, payment) {
         }
 
         // Verificar vínculo Steam
-        const linksPath = path.join(__dirname, '..', 'links.json');
+        const linksPath = path.join(__dirname, '..', 'data', 'links.json');
         if (!fs.existsSync(linksPath)) {
             throw new Error('Arquivo de vínculos Steam não encontrado');
         }
@@ -719,8 +719,8 @@ async function executeProductDelivery(userId, productId, paymentId) {
         console.log(`🚚 Executando entrega para usuário ${userId}, produto ${productId}...`);
         
         // Carregar dados necessários
-        const productsPath = path.join(__dirname, '..', 'produtos.json');
-        const linksPath = path.join(__dirname, '..', 'links.json');
+        const productsPath = path.join(__dirname, '..', 'data', 'produtos.json');
+        const linksPath = path.join(__dirname, '..', 'data', 'links.json');
         const approvedPath = path.join(__dirname, '..', 'data', 'approved_purchases.json');
         
         const products = JSON.parse(fs.readFileSync(productsPath, 'utf8'));

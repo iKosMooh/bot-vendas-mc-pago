@@ -1,19 +1,25 @@
 const { EmbedBuilder, ButtonBuilder, ButtonStyle, ActionRowBuilder } = require('discord.js');
 const fs = require('fs');
 const path = require('path');
+const { requireAdmin } = require('../utils/permissions');
 
 module.exports = {
     name: 'status',
     description: 'Mostra o status geral do bot e sistemas',
     execute(message, args) {
+        // Verificar permissões de administrador
+        if (!requireAdmin(message, 'o comando status')) {
+            return;
+        }
+        
         const config = require('../config.json');
         
         // Verificar arquivos do sistema
         const files = {
-            'produtos.json': path.join(__dirname, '..', 'produtos.json'),
-            'payments.json': path.join(__dirname, '..', 'payments.json'),
-            'approved_purchases.json': path.join(__dirname, '..', 'approved_purchases.json'),
-            'links.json': path.join(__dirname, '..', 'links.json')
+            'produtos.json': path.join(__dirname, '..', 'data', 'produtos.json'),
+            'payments.json': path.join(__dirname, '..', 'data', 'payments.json'),
+            'approved_purchases.json': path.join(__dirname, '..', 'data', 'approved_purchases.json'),
+            'links.json': path.join(__dirname, '..', 'data', 'links.json')
         };
 
         const systemStatus = {};

@@ -1,5 +1,6 @@
 const Discord = require("discord.js");
 const fs = require("fs");
+const { requireAdmin } = require("../utils/permissions");
 
 module.exports = {
   data: new Discord.SlashCommandBuilder()
@@ -62,6 +63,11 @@ module.exports = {
     ),
 
   async execute(interaction) {
+    // Verificar permissões de administrador
+    if (!requireAdmin({ member: interaction.member, reply: interaction.reply.bind(interaction) }, 'o comando addproduct')) {
+      return;
+    }
+
     // Verifica se o usuário tem permissão (ManageGuild)
     if (!interaction.member || !interaction.member.permissions.has(Discord.PermissionFlagsBits.ManageGuild)) {
       return interaction.reply({ content: "❌ Você não tem permissão para usar este comando.", flags: 64 });
@@ -102,17 +108,17 @@ module.exports = {
 
     // Carrega produtos existentes
     let produtosData = {};
-    if (fs.existsSync('produtos.json')) {
+    if (fs.existsSync('data/produtos.json')) {
       try {
-        const fileContent = fs.readFileSync('produtos.json', 'utf8').trim();
+        const fileContent = fs.readFileSync('data/produtos.json', 'utf8').trim();
         if (fileContent) {
           produtosData = JSON.parse(fileContent);
         }
       } catch (error) {
         console.error("Erro ao ler produtos.json:", error);
         // Se o arquivo estiver corrompido, fazer backup e criar novo
-        if (fs.existsSync('produtos.json')) {
-          fs.renameSync('produtos.json', `produtos_backup_${Date.now()}.json`);
+        if (fs.existsSync('data/produtos.json')) {
+          fs.renameSync('data/produtos.json', `produtos_backup_${Date.now()}.json`);
         }
         produtosData = {};
       }
@@ -161,7 +167,7 @@ module.exports = {
 
     // Salva no arquivo
     try {
-      fs.writeFileSync('produtos.json', JSON.stringify(produtosData, null, 2));
+      fs.writeFileSync('data/produtos.json', JSON.stringify(produtosData, null, 2));
       
       const embed = new Discord.EmbedBuilder()
         .setTitle("✅ Produto Adicionado")

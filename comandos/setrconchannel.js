@@ -186,6 +186,7 @@ module.exports = {
 
         try {
             const config = require('../config.json');
+const { requireAdmin } = require("../utils/permissions");
             if (!config.rcon?.host || !config.rcon?.password) {
                 return message.reply('❌ Configuração RCON ausente em config.json!');
             }

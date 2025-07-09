@@ -148,6 +148,16 @@ class ServerMonitor {
 
             console.log(`✅ Status atualizado: ${serverData.name} (${serverData.players}/${serverData.maxPlayers})`);
 
+            // Atualizar status do bot com informações do servidor
+            try {
+                const { ActivityType } = require('discord.js');
+                const playerInfo = `${serverData.players}/${serverData.maxPlayers}`;
+                const botStatus = `${serverData.name} (${playerInfo})`;
+                this.client.user.setActivity(botStatus, { type: ActivityType.Playing });
+            } catch (statusError) {
+                console.error('❌ Erro ao atualizar status do bot:', statusError);
+            }
+
         } catch (error) {
             console.error('❌ Erro ao atualizar status do servidor:', error);
             this.errorCount++;

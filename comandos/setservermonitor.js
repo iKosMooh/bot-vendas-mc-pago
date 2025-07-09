@@ -123,6 +123,16 @@ module.exports = {
                     const { startServerMonitoring } = require('../utils/serverMonitor');
                     startServerMonitoring(interaction.client);
 
+                    // Atualizar status do bot com o nome do servidor
+                    try {
+                        const { ActivityType } = require('discord.js');
+                        const serverName = `Unturned ${serverData.name}`;
+                        interaction.client.user.setActivity(serverName, { type: ActivityType.Playing });
+                        console.log(`✅ Status do bot atualizado: Jogando ${serverName}`);
+                    } catch (statusError) {
+                        console.error('❌ Erro ao atualizar status do bot:', statusError);
+                    }
+
                 } catch (error) {
                     console.error('❌ Erro ao enviar primeira mensagem:', error);
                     await interaction.followUp({

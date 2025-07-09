@@ -1,4 +1,4 @@
-const { Client, GatewayIntentBits, Collection, REST, Routes } = require('discord.js');
+const { Client, GatewayIntentBits, Collection, REST, Routes, ActivityType } = require('discord.js');
 const fs = require('fs');
 
 // Carregar configurações
@@ -82,6 +82,29 @@ client.once('ready', async () => {
         console.log('✅ Sistema de monitoramento de servidor iniciado');
     } catch (error) {
         console.error('❌ Erro ao iniciar monitoramento de servidor:', error);
+    }
+    
+    // Configurar status do bot
+    try {
+        // Tentar obter o nome do servidor configurado no monitoramento
+        const Utils = require('./utils/utils');
+        const channels = Utils.loadChannels();
+        
+        let serverName = 'Unturned';
+        if (channels.serverMonitor && channels.serverMonitor.serverName) {
+            serverName = `Unturned ${channels.serverMonitor.serverName}`;
+        }
+        
+        client.user.setActivity(serverName, { type: ActivityType.Playing });
+        console.log(`✅ Status do bot configurado: Jogando ${serverName}`);
+    } catch (error) {
+        console.error('❌ Erro ao configurar status do bot:', error);
+        // Fallback para status padrão
+        try {
+            client.user.setActivity('Unturned Z-StarV', { type: ActivityType.Playing });
+        } catch (fallbackError) {
+            console.error('❌ Erro no fallback do status:', fallbackError);
+        }
     }
     
     console.log(`🔥 ${client.user.displayName || client.user.tag} Iniciado`);

@@ -30,16 +30,8 @@ module.exports = {
 
     async execute(interaction) {
         // Verificar permissões de administrador
-        if (!requireAdmin({ member: interaction.member, reply: interaction.reply.bind(interaction) }, 'o comando linksteam')) {
+        if (!(await requireAdmin(interaction, 'o comando linksteam'))) {
             return;
-        }
-        
-        // Verificar permissões de administrador
-        if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
-            return interaction.reply({ 
-                content: '❌ Você precisa ter permissões de administrador para usar este comando!', 
-                ephemeral: true 
-            });
         }
 
         const targetUser = interaction.options.getUser('usuario');

@@ -39,7 +39,7 @@ module.exports = {
 
   async run(client, interaction) {
         // Verificar permissões de administrador
-        if (!requireAdmin({ member: interaction.member, reply: interaction.reply.bind(interaction) }, 'o comando vendas')) {
+        if (!(await requireAdmin(interaction, 'o comando vendas'))) {
             return;
         }
         

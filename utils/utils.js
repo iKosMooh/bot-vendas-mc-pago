@@ -377,6 +377,7 @@ class Utils {
     /**
      * Salva a configuração de channels no arquivo separado
      * @param {Object} channels - Configuração de channels
+     * @returns {boolean} - True se salvou com sucesso
      */
     static saveChannels(channels) {
         const channelsPath = path.join(__dirname, '..', 'data', 'channels.json');
@@ -384,8 +385,10 @@ class Utils {
         try {
             fs.writeFileSync(channelsPath, JSON.stringify(channels, null, 2));
             console.log('✅ Configuração de channels salva');
+            return true;
         } catch (error) {
             console.error('❌ Erro ao salvar channels.json:', error);
+            return false;
         }
     }
 }

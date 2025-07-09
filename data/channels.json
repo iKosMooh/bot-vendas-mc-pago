@@ -1,6 +1,17 @@
 {
-  "logs": "ID_DO_CANAL_DE_LOGS",
-  "tickets": "ID_DO_CANAL_DE_TICKETS",
+  "logs": "1191724089522540666",
+  "tickets": "1189290148073054288",
   "shop": "ID_DO_CANAL_DA_LOJA",
-  "rcon": "1391758510307672197"
+  "rcon": "1391758510307672197",
+  "serverMonitor": {
+    "channelId": "1392320685736460419",
+    "serverId": "34456987",
+    "serverName": "Z-StarV [Vanilla+] [Home & TPA] [Oficial]",
+    "url": "https://www.battlemetrics.com/servers/unturned/34456987",
+    "interval": 10,
+    "lastMessageId": "1392323904604868618",
+    "enabled": true,
+    "configuredAt": "2025-07-09T01:57:52.524Z",
+    "configuredBy": "402595451435614209"
+  }
 }

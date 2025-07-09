@@ -5,10 +5,10 @@ const { Rcon } = require('rcon-client');
 
 // ========== CONFIGURAÇÕES DE VERIFICAÇÃO AUTOMÁTICA ==========
 const VERIFICATION_INTERVALS = {
-    EXPIRED_PRODUCTS: 1 * 60 * 1000,      // 5 minutos
-    PENDING_PAYMENTS: 1 * 60 * 1000,      // 5 minutos  
-    PENDING_DELIVERIES: 1 * 60 * 1000,    // 5 minutos
-    LOW_STOCK: 1 * 60 * 60 * 1000         // 2 horas
+    EXPIRED_PRODUCTS: 30 * 60 * 1000,      // 5 minutos
+    PENDING_PAYMENTS: 5 * 60 * 1000,      // 5 minutos  
+    PENDING_DELIVERIES: 10 * 60 * 1000,    // 5 minutos
+    LOW_STOCK: 2 * 60 * 60 * 1000         // 2 horas
 };
 
 // Configurações de limites
@@ -19,9 +19,9 @@ const STOCK_LIMITS = {
 // ============================================================
 
 // ===== CONFIGURAÇÕES DE VERIFICAÇÃO AUTOMÁTICA =====
-const CHECK_EXPIRED_PRODUCTS_INTERVAL = 1 * 60 * 1000; // 5 minutos
-const CHECK_PENDING_PAYMENTS_INTERVAL = 1 * 60 * 1000; // 5 minutos
-const CHECK_PENDING_DELIVERIES_INTERVAL = 1 * 60 * 1000; // 5 minutos
+const CHECK_EXPIRED_PRODUCTS_INTERVAL = 30 * 60 * 1000; // 5 minutos
+const CHECK_PENDING_PAYMENTS_INTERVAL = 5 * 60 * 1000; // 5 minutos
+const CHECK_PENDING_DELIVERIES_INTERVAL = 10 * 60 * 1000; // 5 minutos
 const CHECK_LOW_STOCK_INTERVAL = 2 * 60 * 60 * 1000; // 2 horas
 
 /**
@@ -900,6 +900,33 @@ class ProductDelivery {
 const productDelivery = new ProductDelivery();
 
 module.exports = {
-    ...productDelivery,
-    startExpiryChecker: () => productDelivery.startExpiryChecker()
+    // Métodos principais da classe
+    checkExpiredProducts: () => productDelivery.checkExpiredProducts(),
+    checkExpiredProductsForRemoval: () => productDelivery.checkExpiredProductsForRemoval(),
+    checkPendingPayments: () => productDelivery.checkPendingPayments(),
+    checkPendingDeliveries: () => productDelivery.checkPendingDeliveries(),
+    checkLowStock: () => productDelivery.checkLowStock(),
+    
+    // Métodos de entrega
+    deliverProduct: (purchaseId, client) => productDelivery.deliverProduct(purchaseId, client),
+    executeDeliveryForPurchase: (purchase) => productDelivery.executeDeliveryForPurchase(purchase),
+    processExpiredProduct: (purchase) => productDelivery.processExpiredProduct(purchase),
+    
+    // Métodos de conexão RCON
+    connectRcon: () => productDelivery.connectRcon(),
+    executeCommand: (command) => productDelivery.executeCommand(command),
+    closeRconConnection: () => productDelivery.closeRconConnection(),
+    testRconConnection: () => productDelivery.testRconConnection(),
+    
+    // Métodos de dados
+    getUserSteamLink: (userId) => productDelivery.getUserSteamLink(userId),
+    getProductData: (productId) => productDelivery.getProductData(productId),
+    getApprovedPurchases: () => productDelivery.getApprovedPurchases(),
+    saveApprovedPurchases: (purchases) => productDelivery.saveApprovedPurchases(purchases),
+    
+    // Verificações automáticas
+    startExpiryChecker: () => productDelivery.startExpiryChecker(),
+    
+    // Alias para removeExpiredAccess (que na verdade é checkExpiredProductsForRemoval)
+    removeExpiredAccess: () => productDelivery.checkExpiredProductsForRemoval()
 };

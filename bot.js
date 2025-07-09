@@ -48,37 +48,40 @@ client.once('ready', async () => {
                     { body: commandsArray }
                 );
                 console.log(`✅ Comandos registrados no servidor: ${guildId}`);
-            } catch (guildError) {
-                console.log(`⚠️ Não foi possível registrar comandos no servidor ${guildId}:`, guildError.message);
+            } catch (error) {
+                console.error(`❌ Erro ao registrar comandos no servidor ${guildId}:`, error);
             }
         }
     } catch (error) {
-        console.error('Erro ao registrar comandos de barra:', error);
+        console.error('❌ Erro ao registrar comandos:', error);
     }
-    // Sincronizar canal RCON automaticamente se configurado
-    console.log('🔍 Verificando comando setrconchannel...');
-    const rconCmd = client.commands.get('setrconchannel');
-    if (rconCmd && typeof rconCmd.syncOnReady === 'function') {
-        console.log('🔍 Sincronizando canal RCON...');
-        await rconCmd.syncOnReady(client);
-    } else {
-        console.log('ℹ️ Comando setrconchannel não encontrado ou sem função syncOnReady');
-    }
-    
-    // Iniciar verificações automáticas de pagamentos e produtos
+
+    // Inicializar verificações automáticas
     try {
-        console.log('🔍 Carregando sistema de verificações automáticas...');
-        const { startExpiryChecker } = require('./utils/productDelivery');
-        console.log('🔍 Iniciando verificador automático...');
-        startExpiryChecker();
-        console.log('✅ Sistema de verificações automáticas configurado');
-        console.log('  📋 Verificação de produtos expirados: a cada 30 minutos');
-        console.log('  💳 Verificação de pagamentos pendentes: a cada 10 minutos');
-        console.log('  🚚 Verificação de entregas pendentes: a cada 15 minutos');
-        console.log('  📦 Verificação de estoque baixo: a cada 2 horas');
+        const productDelivery = require('./utils/productDelivery');
+        
+        // Verificações a cada 5 minutos
+        setInterval(async () => {
+            try {
+                await productDelivery.checkExpiredProducts();
+                await productDelivery.checkExpiredProductsForRemoval();
+            } catch (error) {
+                console.error('❌ Erro nas verificações automáticas:', error);
+            }
+        }, 5 * 60 * 1000);
+
         console.log('✅ Verificações automáticas iniciadas');
     } catch (error) {
         console.error('❌ Erro ao iniciar verificações automáticas:', error);
+    }
+
+    // Inicializar monitoramento de servidor
+    try {
+        const { startServerMonitoring } = require('./utils/serverMonitor');
+        startServerMonitoring(client);
+        console.log('✅ Sistema de monitoramento de servidor iniciado');
+    } catch (error) {
+        console.error('❌ Erro ao iniciar monitoramento de servidor:', error);
     }
     
     console.log(`🔥 ${client.user.displayName || client.user.tag} Iniciado`);
@@ -153,11 +156,18 @@ client.on('interactionCreate', async interaction => {
 // Comandos por prefixo (mensagem) e integração RCON
 client.on('messageCreate', async message => {
     if (message.author.bot) return;
+    
     // RCON: se o comando setrconchannel estiver carregado, delega para ele
     const rconCmd = client.commands.get('setrconchannel');
     if (rconCmd && typeof rconCmd.handleMessage === 'function') {
-        await rconCmd.handleMessage(message);
+        try {
+            const handled = await rconCmd.handleMessage(message);
+            if (handled) return; // Se foi processado pelo RCON, não processar como comando normal
+        } catch (error) {
+            console.error('❌ Erro ao processar mensagem RCON:', error);
+        }
     }
+    
     if (!message.content.startsWith(prefix)) return;
 
     const args = message.content.slice(prefix.length).trim().split(/ +/);

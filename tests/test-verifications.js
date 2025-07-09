@@ -1,10 +1,10 @@
 // Script para testar verificações automáticas manualmente
-const { startExpiryChecker } = require('./utils/productDelivery');
+const { startExpiryChecker } = require('../utils/productDelivery');
 
 console.log('🔍 Iniciando teste das verificações automáticas...');
 
 // Executar verificações uma vez para teste
-const productDelivery = require('./utils/productDelivery');
+const productDelivery = require('../utils/productDelivery');
 
 async function runTests() {
     console.log('\n📋 === TESTE DE VERIFICAÇÕES AUTOMÁTICAS ===\n');

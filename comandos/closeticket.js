@@ -32,7 +32,8 @@ module.exports = {
       }
 
       const isOwner = ticket.userId === interaction.user.id;
-      const isAdmin = requireAdmin(interaction.member);
+      const { checkAdmin } = require('../utils/permissions');
+      const isAdmin = checkAdmin(interaction);
       
       if (!isOwner && !isAdmin) {
         return interaction.reply({ 

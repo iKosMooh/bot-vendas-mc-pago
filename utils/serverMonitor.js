@@ -106,7 +106,7 @@ class ServerMonitor {
             
             // Adicionar informações de monitoramento
             embed.setFooter({ 
-                text: `Próxima atualização em ${config.interval}min • Atualizado em ` 
+                text: `Próxima atualização em ${config.interval}min • Atualizado ` 
             });
 
             // Tentar editar mensagem existente ou criar nova

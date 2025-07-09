@@ -127,7 +127,6 @@ class BattlemetricsAPI {
             .setTitle(`🎮 ${serverData.name}`)
             .setColor(serverData.status === 'online' ? '#00ff00' : '#ff0000')
             .setTimestamp()
-            .setFooter({ text: 'Atualizado em' });
 
         // Status do servidor
         const statusIcon = serverData.status === 'online' ? '🟢' : '🔴';

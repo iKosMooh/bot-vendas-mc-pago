@@ -5,3 +5,4 @@ package-lock.json
 # Arquivos de configuração específicos do ambiente
 config.json
 discloud.config
+data/

@@ -1,5 +1,6 @@
 const Discord = require("discord.js");
 const fs = require("fs");
+const { Rcon } = require('rcon-client');
 
 module.exports = {
   data: new Discord.SlashCommandBuilder()
@@ -45,14 +46,71 @@ module.exports = {
         linksData[userId] = { username: userTag, steamId };
         fs.writeFileSync('data/links.json', JSON.stringify(linksData, null, 2), 'utf8');
 
+        // Executar comando RCON para adicionar permissão no servidor
+        let rconResult = null;
+        try {
+          const config = require('../config.json');
+          if (config.rcon && config.rcon.host && config.rcon.password) {
+            const rcon = new Rcon({
+              host: config.rcon.host,
+              port: config.rcon.port || 27015,
+              password: config.rcon.password,
+              timeout: 10000
+            });
+
+            await rcon.connect();
+            // Comando para adicionar usuário ao grupo discord
+            const rconCommand = `p add ${steamId} discord`;
+            const response = await rcon.send(rconCommand);
+            await rcon.end();
+            
+            rconResult = {
+              success: true,
+              command: rconCommand,
+              response: response
+            };
+            
+            console.log(`✅ Comando RCON executado para ${userTag}: ${rconCommand}`);
+            console.log(`📤 Resposta: ${response}`);
+          } else {
+            rconResult = {
+              success: false,
+              error: 'RCON não configurado'
+            };
+          }
+        } catch (error) {
+          console.error('❌ Erro ao executar comando RCON:', error);
+          rconResult = {
+            success: false,
+            error: error.message
+          };
+        }
+
         const embed = new Discord.EmbedBuilder()
           .setTitle("🔗 Steam Vinculado")
           .setColor("#00FF00")
           .addFields(
             { name: "Discord", value: userTag, inline: true },
             { name: "Steam64ID", value: steamId, inline: true }
-          )
-          .setTimestamp();
+          );
+
+        // Adicionar campo do RCON se foi executado
+        if (rconResult) {
+          if (rconResult.success) {
+            embed.addFields(
+              { name: "🎮 Comando RCON", value: `\`${rconResult.command}\``, inline: false },
+              { name: "📤 Resposta", value: `\`${rconResult.response || 'Comando executado'}\``, inline: false }
+            );
+            embed.setDescription("✅ Steam ID vinculada e permissões adicionadas no servidor!");
+          } else {
+            embed.addFields(
+              { name: "⚠️ RCON", value: `Erro: ${rconResult.error}`, inline: false }
+            );
+            embed.setDescription("✅ Steam ID vinculada, mas não foi possível adicionar permissões no servidor.");
+          }
+        }
+
+        embed.setTimestamp();
 
         return interaction.reply({ embeds: [embed], ephemeral: true });
 

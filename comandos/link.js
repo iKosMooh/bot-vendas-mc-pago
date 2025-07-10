@@ -97,16 +97,11 @@ module.exports = {
         // Adicionar campo do RCON se foi executado
         if (rconResult) {
           if (rconResult.success) {
-            embed.addFields(
-              { name: "🎮 Comando RCON", value: `\`${rconResult.command}\``, inline: false },
-              { name: "📤 Resposta", value: `\`${rconResult.response || 'Comando executado'}\``, inline: false }
-            );
             embed.setDescription("✅ Steam ID vinculada e permissões adicionadas no servidor!");
+            console.log(`🎮 RCON executado para ${interaction.user.tag}: ${rconResult.command} -> ${rconResult.response}`);
           } else {
-            embed.addFields(
-              { name: "⚠️ RCON", value: `Erro: ${rconResult.error}`, inline: false }
-            );
             embed.setDescription("✅ Steam ID vinculada, mas não foi possível adicionar permissões no servidor.");
+            console.log(`❌ Erro RCON para ${interaction.user.tag}: ${rconResult.error}`);
           }
         }
 
